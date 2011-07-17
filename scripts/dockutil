@@ -547,10 +547,16 @@ def removeItem(pl, item_name):
             pl['persistent-apps'].remove(dock_item)
             return True
     for dock_item in pl['persistent-others']:
-        if dock_item['tile-data']['file-label'] == item_name:
-            verboseOutput('found', item_name)
-            pl['persistent-others'].remove(dock_item)
-            return True
+        if dock_item['tile-type'] == "url-tile":
+            if dock_item['tile-data']['label'] == item_name:
+                verboseOutput('found', item_name)
+                pl['persistent-others'].remove(dock_item)
+                return True
+        else:
+            if dock_item['tile-data']['file-label'] == item_name:
+                verboseOutput('found', item_name)
+                pl['persistent-others'].remove(dock_item)
+                return True
     return False
 
 def commitPlist(pl, plist_path):

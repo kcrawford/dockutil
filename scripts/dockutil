@@ -19,7 +19,7 @@
 # Possible future enhancements
 # tie in with application identifier codes for locating apps and replacing them in the dock with newer versions?
 
-import sys, plistlib, subprocess, os, getopt, re
+import sys, plistlib, subprocess, os, getopt, re, pipes
 from random import randrange
 
 
@@ -225,9 +225,12 @@ def main():
         if os.path.isdir(plist_path):
             if os.path.exists(os.path.expanduser(plist_path)+'/Library/Preferences/com.apple.dock.plist'):
                 plist_path = os.path.expanduser(plist_path)+'/Library/Preferences/com.apple.dock.plist'
+                plist_path = os.path.abspath(plist_path)
+                plist_path = pipes.quote(plist_path)
             else:
                 print plist_path, 'does not seem to be a home directory or a dock plist'
                 sys.exit(1)
+
 
         # check for each action and process accordingly
         if remove_label != None: # --remove action
@@ -344,6 +347,7 @@ def main():
 
 def writePlist(pl, plist_path):
     """writes a plist object down to a file"""
+    plist_path = path_as_string(plist_path)
     try:
         plistlib.writePlist(pl, plist_path)
     except AttributeError: # if there was an AttributeError, we may need to use the older method for writing the plist down
@@ -355,6 +359,7 @@ def writePlist(pl, plist_path):
 
 def readPlist(plist_path):
     """returns a plist object read from a file path"""
+    plist_path = path_as_string(plist_path)
     try:
         pl = plistlib.plistFromPath(plist_path)
     except AttributeError: # there was an AttributeError, we may need to use the older method for reading the plist
@@ -365,7 +370,9 @@ def readPlist(plist_path):
             sys.exit(5)
     return pl
 
-
+def path_as_string(path):
+    """returns an unescaped string of the path"""
+    return subprocess.Popen('ls -d '+path, shell=True, stdout=subprocess.PIPE).stdout.read().rstrip('\n')
 
 def check_for_unique_guid(pl, new_guid):
     """loops thru items in the plist to ensure there isn't already a GUID in there that matches the generated GUID, returns False if the GUID is not unique"""
@@ -536,7 +543,8 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
     return True
 
 def convertPlist(path, format):
-    if os.system('plutil -convert '+format+' '+path) != 0:
+    command = 'plutil -convert '+format+' '+path
+    if os.system(command) != 0:
         print 'failed to convert plist', '"'+path+'"'
         sys.exit(1)
 
@@ -560,12 +568,13 @@ def removeItem(pl, item_name):
     return False
 
 def commitPlist(pl, plist_path):
+    plist_string_path = path_as_string(plist_path)
     pl = removeLongs(pl)
-    plist_stat = os.stat(plist_path)
+    plist_stat = os.stat(plist_string_path)
     writePlist(pl, plist_path)
     convertPlist(plist_path, 'binary1')
-    os.chown(plist_path, plist_stat.st_uid, plist_stat.st_gid)
-    os.chmod(plist_path, plist_stat.st_mode)
+    os.chown(plist_string_path, plist_stat.st_uid, plist_stat.st_gid)
+    os.chmod(plist_string_path, plist_stat.st_mode)
     os.system('/usr/bin/killall -HUP Dock >/dev/null 2>&1')
 
 

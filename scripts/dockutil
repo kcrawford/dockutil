@@ -32,7 +32,7 @@ def usage(e=None):
 
     print "usage:     %s -h" % (name,)
     print "usage:     %s --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [ plist_location_specification ]" % (name,)
-    print "usage:     %s --remove <dock item label> [ plist_location_specification ]" % (name,)
+    print "usage:     %s --remove <dock item label> | all [ plist_location_specification ]" % (name,)
     print "usage:     %s --move <dock item label>  position_options [ plist_location_specification ]" % (name,)
     print "usage:     %s --find <dock item label> [ plist_location_specification ]" % (name,)
     print "usage:     %s --list [ plist_location_specification ]" % (name,)
@@ -82,6 +82,9 @@ def usage(e=None):
     print ""
     print "  The following lists all dock items for all home directories at homeloc in the form: item<tab>path<tab><section>tab<plist>"
     print "           %s --list --homeloc /Volumes/RAID/Homes --allhomes" % (name,)
+    print ""
+    print "  The following adds Firefox after Safari in the Default User Template"
+    print "           %s --add /Applications/Firefox.app --after Safari '/System/Library/User Template/English.lproj'" % (name,)
     print ""
     print ""
     print "Notes:"

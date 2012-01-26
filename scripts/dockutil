@@ -25,6 +25,7 @@ from random import randrange
 
 # default verbose printing to off
 verbose = False
+version = '1.1'
 
 def usage(e=None):
     """Displays usage information and error if one occurred"""
@@ -36,6 +37,7 @@ def usage(e=None):
     print "usage:     %s --move <dock item label>  position_options [ plist_location_specification ]" % (name,)
     print "usage:     %s --find <dock item label> [ plist_location_specification ]" % (name,)
     print "usage:     %s --list [ plist_location_specification ]" % (name,)
+    print "usage:     %s --version" % (name,)
     print ""
     print "position_options:"
     print "  --replacing <dock item label name>                            replaces the item with the given dock label or adds the item to the end if item to replace is not found"
@@ -114,7 +116,7 @@ def main():
     """Parses options and arguments and performs fuctions"""
     # setup our getoput opts and args
     try:
-        (optargs, args) = getopt.getopt(sys.argv[1:], 'hv', ["help", "section=", "list", "find=", "add=", "move=", "replacing=", "remove=", "after=", "before=", "position=", "display=", "view=", "sort=", "label=", "type=", "allhomes", "homeloc="])
+        (optargs, args) = getopt.getopt(sys.argv[1:], 'hv', ["help", "version", "section=", "list", "find=", "add=", "move=", "replacing=", "remove=", "after=", "before=", "position=", "display=", "view=", "sort=", "label=", "type=", "allhomes", "homeloc="])
     except getopt.GetoptError, e:  # if parsing of options fails, display usage and parse error
         usage(e)
 
@@ -145,6 +147,9 @@ def main():
             usage()
         elif opt == "-v":
             verbose = True
+        elif opt == "--version":
+            print version
+            sys.exit(0)
         elif opt == "--add":
             add_path = arg
         elif opt == "--replacing":

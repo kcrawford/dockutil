@@ -549,6 +549,13 @@ def convertPlist(path, format):
         sys.exit(1)
 
 def removeItem(pl, item_name):
+    if item_name == "all":
+		for dock_item in pl['persistent-apps'][:]:
+			verboseOutput('found', dock_item)
+			pl['persistent-apps'].remove(dock_item)
+		for dock_item in pl['persistent-others'][:]:
+			pl['persistent-others'].remove(dock_item)
+		return True
     for dock_item in pl['persistent-apps']:
         if dock_item['tile-data']['file-label'] == item_name:
             verboseOutput('found', item_name)

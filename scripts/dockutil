@@ -487,6 +487,19 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
             base_name = re.sub('/$', '', add_path).split('/')[-1]
             label_name = re.sub('.app$', '', base_name)
 
+
+    # only add if item label isn't already there
+
+    if replace_label != label_name:
+        for existing_dock_item in (pl[section]):
+            for label_key in ['file-label','label']:
+                if existing_dock_item['tile-data'].has_key(label_key):
+                    if existing_dock_item['tile-data'][label_key] == label_name:
+                        print "%s already exists in dock. Use --replacing '%s' to update an existing item" % (label_name, label_name)
+                        return False
+
+
+
     if replace_label != None:
         for item_offset in range(len(pl[section])):
             if pl[section][item_offset]['tile-data']['file-label'] == replace_label:
@@ -563,6 +576,7 @@ def convertPlist(path, format):
         sys.exit(1)
 
 def removeItem(pl, item_name):
+    removal_succeeded = False
     if item_name == "all":
 		for dock_item in pl['persistent-apps'][:]:
 			verboseOutput('found', dock_item)
@@ -574,19 +588,19 @@ def removeItem(pl, item_name):
         if dock_item['tile-data']['file-label'] == item_name:
             verboseOutput('found', item_name)
             pl['persistent-apps'].remove(dock_item)
-            return True
+            removal_succeeded = True
     for dock_item in pl['persistent-others']:
         if dock_item['tile-type'] == "url-tile":
             if dock_item['tile-data']['label'] == item_name:
                 verboseOutput('found', item_name)
                 pl['persistent-others'].remove(dock_item)
-                return True
+                removal_succeeded = True
         else:
             if dock_item['tile-data']['file-label'] == item_name:
                 verboseOutput('found', item_name)
                 pl['persistent-others'].remove(dock_item)
-                return True
-    return False
+                removal_succeeded = True
+    return removal_succeeded
 
 def commitPlist(pl, plist_path, restart_dock):
     plist_string_path = path_as_string(plist_path)

@@ -32,8 +32,8 @@ def usage(e=None):
     name = os.path.basename(sys.argv[0])
 
     print "usage:     %s -h" % (name,)
-    print "usage:     %s --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [ plist_location_specification ]" % (name,)
-    print "usage:     %s --remove <dock item label> | all [ plist_location_specification ]" % (name,)
+    print "usage:     %s --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [ plist_location_specification ] [--no-restart]" % (name,)
+    print "usage:     %s --remove <dock item label> | all [ plist_location_specification ] [--no-restart]" % (name,)
     print "usage:     %s --move <dock item label>  position_options [ plist_location_specification ]" % (name,)
     print "usage:     %s --find <dock item label> [ plist_location_specification ]" % (name,)
     print "usage:     %s --list [ plist_location_specification ]" % (name,)
@@ -85,8 +85,8 @@ def usage(e=None):
     print "  The following lists all dock items for all home directories at homeloc in the form: item<tab>path<tab><section>tab<plist>"
     print "           %s --list --homeloc /Volumes/RAID/Homes --allhomes" % (name,)
     print ""
-    print "  The following adds Firefox after Safari in the Default User Template"
-    print "           %s --add /Applications/Firefox.app --after Safari '/System/Library/User Template/English.lproj'" % (name,)
+    print "  The following adds Firefox after Safari in the Default User Template without restarting the Dock"
+    print "           %s --add /Applications/Firefox.app --after Safari --no-restart '/System/Library/User Template/English.lproj'" % (name,)
     print ""
     print ""
     print "Notes:"
@@ -116,7 +116,10 @@ def main():
     """Parses options and arguments and performs fuctions"""
     # setup our getoput opts and args
     try:
-        (optargs, args) = getopt.getopt(sys.argv[1:], 'hv', ["help", "version", "section=", "list", "find=", "add=", "move=", "replacing=", "remove=", "after=", "before=", "position=", "display=", "view=", "sort=", "label=", "type=", "allhomes", "homeloc="])
+        (optargs, args) = getopt.getopt(sys.argv[1:], 'hv', ["help", "version",
+            "section=", "list", "find=", "add=", "move=", "replacing=",
+            "remove=", "after=", "before=", "position=", "display=", "view=",
+            "sort=", "label=", "type=", "allhomes", "homeloc=", "no-restart"])
     except getopt.GetoptError, e:  # if parsing of options fails, display usage and parse error
         usage(e)
 
@@ -141,6 +144,7 @@ def main():
     tile_type = None
     label_name = None
     home_directories_loc = '/Users'
+    restart_dock = True
 
     for opt, arg in optargs:
         if opt in ("-h", "--help"):
@@ -203,6 +207,8 @@ def main():
             all_homes = True
         elif opt == '--homeloc':
             home_directories_loc = arg
+        elif opt == '--no-restart':
+            restart_dock = False
 
     # check for an action
     if add_path == None and remove_label == None and move_label == None and find_label == None and list == False:
@@ -244,7 +250,7 @@ def main():
         if remove_label != None: # --remove action
             pl = plistFromPath(plist_path)
             if removeItem(pl, remove_label):
-                commitPlist(pl, plist_path)
+                commitPlist(pl, plist_path, restart_dock)
             else:
                 convertPlist(plist_path, 'binary1')
                 print 'item', remove_label, 'was not found in', plist_path
@@ -308,7 +314,7 @@ def main():
                 usage('move action requires a position destination')
             # perform the move and save the plist if it was successful
             if moveItem(pl, move_label, position, before_item, after_item):
-                commitPlist(pl, plist_path)
+                commitPlist(pl, plist_path, restart_dock)
             else:
                 convertPlist(plist_path, 'binary1')
                 print 'move failed for', move_label, 'in', plist_path
@@ -346,7 +352,7 @@ def main():
             verboseOutput('adding', real_add_path)
             # perform the add save the plist if it was successful
             if addItem(pl, real_add_path, replace_label, position, before_item, after_item, section, displayas, showas, arrangement, tile_type, label_name):
-                commitPlist(pl, plist_path)
+                commitPlist(pl, plist_path, restart_dock)
             else:
                 convertPlist(plist_path, 'binary1')
                 print 'item', add_path, 'was not added to  Dock'
@@ -582,7 +588,7 @@ def removeItem(pl, item_name):
                 return True
     return False
 
-def commitPlist(pl, plist_path):
+def commitPlist(pl, plist_path, restart_dock):
     plist_string_path = path_as_string(plist_path)
     pl = removeLongs(pl)
     plist_stat = os.stat(plist_string_path)
@@ -590,7 +596,8 @@ def commitPlist(pl, plist_path):
     convertPlist(plist_path, 'binary1')
     os.chown(plist_string_path, plist_stat.st_uid, plist_stat.st_gid)
     os.chmod(plist_string_path, plist_stat.st_mode)
-    os.system('/usr/bin/killall -HUP Dock >/dev/null 2>&1')
+    if restart_dock:
+        os.system('/usr/bin/killall -HUP Dock >/dev/null 2>&1')
 
 
 def plistFromPath(plist_path):

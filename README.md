@@ -12,22 +12,17 @@ It is currently writting in Python and makes use of plistlib module included in 
 [Apache 2](http://www.apache.org/licenses/LICENSE-2.0)
 
 **CHANGELOG**
+
 Version 1.1
 
-fixes many issues with paths (should now work with Default User Template)
-
-adds option to not restart the dock (--no-restart)
-
-fixes issue where item would be added multiple times
+- fixes many issues with paths (should now work with Default User Template)
+- adds option to not restart the dock (--no-restart)
+- fixes issue where item would be added multiple times
 (use --replacing to update an existing item)
-
-resolves deprecation warnings
-
-adds option to remove all items (--remove all)
-
-fix issue with removals when a url exists in a dock
-
-adds option --version to output version
+- resolves deprecation warnings
+- adds option to remove all items (--remove all)
+- fix issue with removals when a url exists in a dock
+- adds option --version to output version
 
 
 **USAGE**

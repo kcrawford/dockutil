@@ -25,7 +25,7 @@ from random import randrange
 
 # default verbose printing to off
 verbose = False
-version = '1.1'
+version = '1.1.1'
 
 def usage(e=None):
     """Displays usage information and error if one occurred"""
@@ -235,15 +235,20 @@ def main():
     for plist_path in plist_paths:
 
         verboseOutput('processing', plist_path)
-        # a home directory is allowed as an argument, so if the plist_path is a directory, we look for a dock plist inside it
+        # a home directory is allowed as an argument, so if the plist_path is a
+        # directory, we append the relative path to the plist
         if os.path.isdir(plist_path):
-            if os.path.exists(os.path.expanduser(plist_path)+'/Library/Preferences/com.apple.dock.plist'):
-                plist_path = os.path.expanduser(plist_path)+'/Library/Preferences/com.apple.dock.plist'
-                plist_path = os.path.abspath(plist_path)
-                plist_path = pipes.quote(plist_path)
-            else:
-                print plist_path, 'does not seem to be a home directory or a dock plist'
-                sys.exit(1)
+            plist_path = os.path.join(plist_path,'Library/Preferences/com.apple.dock.plist')
+
+        # verify that the plist exists at the given path
+        # and expand and quote it for use when shelling out
+        if os.path.exists(os.path.expanduser(plist_path)):
+            plist_path = os.path.expanduser(plist_path)
+            plist_path = os.path.abspath(plist_path)
+            plist_path = pipes.quote(plist_path)
+        else:
+            print plist_path, 'does not seem to be a home directory or a dock plist'
+            sys.exit(1)
 
 
         # check for each action and process accordingly

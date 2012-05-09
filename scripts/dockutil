@@ -119,7 +119,7 @@ def main():
         (optargs, args) = getopt.getopt(sys.argv[1:], 'hv', ["help", "version",
             "section=", "list", "find=", "add=", "move=", "replacing=",
             "remove=", "after=", "before=", "position=", "display=", "view=",
-            "sort=", "label=", "type=", "allhomes", "homeloc=", "no-restart"])
+            "sort=", "label=", "type=", "allhomes", "homeloc=", "no-restart", "hupdock="])
     except getopt.GetoptError, e:  # if parsing of options fails, display usage and parse error
         usage(e)
 
@@ -209,6 +209,11 @@ def main():
             home_directories_loc = arg
         elif opt == '--no-restart':
             restart_dock = False
+
+        # for legacy compatibility only
+        elif opt == '--hupdock':
+            if arg.lower() == "false" or arg.lower() == "no":
+                restart_dock = False
 
     # check for an action
     if add_path == None and remove_label == None and move_label == None and find_label == None and list == False:

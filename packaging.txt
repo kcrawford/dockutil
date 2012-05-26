@@ -1,0 +1,46 @@
+cp dockutil /usr/local/bin
+chown root:wheel /usr/local/bin/dockutil
+chmod 755 /usr/local/bin/dockutil
+
+cd package_tools
+package_tools$ ./paths2pkg /usr/local/bin/dockutil -n dockutil-1.1.2
+Package name: dockutil-1.1.2
+Display name [None]: dockutil
+Description [None]: command line tool for modifying the dock
+PackageID []: com.dockutil.pkg
+Version [1.1.2]: 
+
+
+Package name: dockutil-1.1.2
+Display name: dockutil
+Description:  command line tool for modifying the dock
+PackageID:    com.dockutil.pkg
+Version:      1.1.2
+
+Build the package? [y/n] y
+['/Volumes/Macintosh HD/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker', '--root', '/tmp/tmppoXuMz/dockutil-1.1.2', '--id', 'com.dockutil.pkg', '--version', '1.1.2', '--out', './dockutil-1.1.2.pkg', '--verbose', '--no-recommend', '--filter', 'Library/Receipts', '--filter', '.DS_Store$']
+Preverifying dockutil-1.1
+  Preverifying dockutil-1.1
+  Checking bundle identifiers
+  Checking package configuration
+  Checking contents
+  Loading contents
+  Checking for ZeroLink
+Building dockutil-1.1
+  Building dockutil-1.1
+  Creating shell
+  Copying scripts
+  Writing description
+  Writing bundle versions
+  Copying resources
+  Creating Requirements
+  Copying root to temporary location
+  Preserving resource forks
+  Creating permission hierarchy
+  Creating Bill-of-Materials file
+  Archiving files
+  Creating Info.plist
+Completed package is at ./dockutil-1.1.2.pkg
+Making disk image...
+created: /Volumes/Users/account/code/package_tools/dockutil-1.1.2.pkg.dmg
+

@@ -25,7 +25,7 @@ from random import randrange
 
 # default verbose printing to off
 verbose = False
-version = '1.1.1'
+version = '1.1.2'
 
 def usage(e=None):
     """Displays usage information and error if one occurred"""
@@ -512,7 +512,8 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
 
     if replace_label != None:
         for item_offset in range(len(pl[section])):
-            if pl[section][item_offset]['tile-data']['file-label'] == replace_label:
+            tile_replace_candidate = pl[section][item_offset]['tile-data']
+            if tile_replace_candidate[label_key_for_tile(tile_replace_candidate)] == replace_label:
                 verboseOutput('found', replace_label)
                 del pl[section][item_offset]
                 position = item_offset + 1
@@ -628,6 +629,10 @@ def plistFromPath(plist_path):
     convertPlist(plist_path, 'xml1') 
     return readPlist(plist_path)
 
+def label_key_for_tile(item):
+    for label_key in ['file-label','label']:
+        if item.has_key(label_key):
+            return label_key
 
 def removeLongs(pl):  # plistlib can't handle writing longs, so we are removing them as a temporary workaround (hack).  plistlib is fixed, but the version in Leopard is still broken as of 10.5.2  Apple radar 5820629  http://svn.python.org/view?rev=60098&view=rev
     for item in pl['persistent-apps']:

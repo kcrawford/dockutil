@@ -13,6 +13,13 @@ It is currently writting in Python and makes use of plistlib module included in 
 
 **CHANGELOG**
 
+Version 1.1.2
+
+- fix issue with replacing a url dock item
+- add legacy support --hupdock option for backward compatibility
+- fix paths with spaces when passing full path to plist
+
+
 Version 1.1
 
 - fixes many issues with paths (should now work with Default User Template)

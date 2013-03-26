@@ -118,7 +118,7 @@ def main():
     try:
         (optargs, args) = getopt.getopt(sys.argv[1:], 'hv', ["help", "version",
             "section=", "list", "find=", "add=", "move=", "replacing=",
-            "remove=", "after=", "before=", "position=", "display=", "view=",
+            "remove=", "removepath=", "after=", "before=", "position=", "display=", "view=",
             "sort=", "label=", "type=", "allhomes", "homeloc=", "no-restart", "hupdock="])
     except getopt.GetoptError, e:  # if parsing of options fails, display usage and parse error
         usage(e)
@@ -127,6 +127,7 @@ def main():
     global verbose
     add_path = None
     remove_label = None
+    remove_path = None
     find_label = None
     move_label = None
     after_item = None
@@ -164,6 +165,8 @@ def main():
             find_label = arg
         elif opt == "--remove":
             remove_label = arg
+        elif opt == "--removepath":
+            remove_path = arg
         elif opt == "--after":
             after_item = arg
         elif opt == "--before":
@@ -216,7 +219,7 @@ def main():
                 restart_dock = False
 
     # check for an action
-    if add_path == None and remove_label == None and move_label == None and find_label == None and list == False:
+    if add_path == None and remove_label == None and remove_path == None and move_label == None and find_label == None and list == False:
         usage('no action was specified')
 
             
@@ -257,13 +260,20 @@ def main():
 
 
         # check for each action and process accordingly
-        if remove_label != None: # --remove action
+        if remove_label != None: # --remove label action
             pl = plistFromPath(plist_path)
             if removeItem(pl, remove_label):
                 commitPlist(pl, plist_path, restart_dock)
             else:
                 convertPlist(plist_path, 'binary1')
                 print 'item', remove_label, 'was not found in', plist_path
+        elif remove_path != None: # --remove path action
+            pl = plistFromPath(plist_path)
+            if removePath(pl, remove_path):
+                commitPlist(pl, plist_path, restart_dock)
+            else:
+                convertPlist(plist_path, 'binary1')
+                print 'item', remove_path, 'was not found in', plist_path
         elif list: # --list action
             try:
                 os.remove('/tmp/com.patternbuffer.dockutil.tmp.plist')
@@ -613,6 +623,34 @@ def removeItem(pl, item_name):
                 removal_succeeded = True
     return removal_succeeded
 
+def removePath(pl, item_path):
+    removal_succeeded = False
+    for dock_item in pl['persistent-apps']:
+        if dock_item['tile-data'].get('file-data')['_CFURLString'] == item_path:
+            verboseOutput('found', item_path)
+            pl['persistent-apps'].remove(dock_item)
+            removal_succeeded = True
+    for dock_item in pl['persistent-others']:
+        if 'file-data' in dock_item['tile-data'] and \
+        dock_item['tile-data'].get('file-data')['_CFURLString'] == item_path:
+            verboseOutput('found', item_path)
+            pl['persistent-others'].remove(dock_item)
+            removal_succeeded = True
+        elif 'url' in dock_item['tile-data'] and \
+        dock_item['tile-data'].get('url')['_CFURLString'] == item_path:
+            verboseOutput('found', item_path)
+            pl['persistent-others'].remove(dock_item)
+            removal_succeeded = True
+        else:
+        # cases like default Dock plist where the path key is directly in the
+        # 'tile-data' dict (no 'file-data' key with nested dict):
+            for key in dock_item['tile-data']:
+                if dock_item['tile-data'].get(key) == item_path:
+                    verboseOutput('found', item_path)
+                    pl['persistent-others'].remove(dock_item)
+                    removal_succeeded = True
+    return removal_succeeded
+
 def commitPlist(pl, plist_path, restart_dock):
     plist_string_path = path_as_string(plist_path)
     pl = removeLongs(pl)
@@ -660,3 +698,4 @@ def removeLongs(pl):  # plistlib can't handle writing longs, so we are removing 
 
 if __name__ == "__main__":
     main()
+

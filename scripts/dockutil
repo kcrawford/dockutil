@@ -626,7 +626,8 @@ def removeItem(pl, item_name):
 def removePath(pl, item_path):
     removal_succeeded = False
     for dock_item in pl['persistent-apps']:
-        if dock_item['tile-data'].get('file-data')['_CFURLString'] == item_path:
+        if 'file-data' in dock_item['tile-data'] and \
+        dock_item['tile-data'].get('file-data')['_CFURLString'] == item_path:
             verboseOutput('found', item_path)
             pl['persistent-apps'].remove(dock_item)
             removal_succeeded = True

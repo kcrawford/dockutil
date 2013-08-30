@@ -37,6 +37,7 @@ def usage(e=None):
     print "usage:     %s --move <dock item label>  position_options [ plist_location_specification ]" % (name,)
     print "usage:     %s --find <dock item label> [ plist_location_specification ]" % (name,)
     print "usage:     %s --list [ plist_location_specification ]" % (name,)
+    print "usage:     %s --restart" % (name,)
     print "usage:     %s --version" % (name,)
     print ""
     print "position_options:"
@@ -119,7 +120,8 @@ def main():
         (optargs, args) = getopt.getopt(sys.argv[1:], 'hv', ["help", "version",
             "section=", "list", "find=", "add=", "move=", "replacing=",
             "remove=", "after=", "before=", "position=", "display=", "view=",
-            "sort=", "label=", "type=", "allhomes", "homeloc=", "no-restart", "hupdock="])
+            "sort=", "label=", "type=", "allhomes", "homeloc=", "no-restart",
+            "hupdock=", "restart"])
     except getopt.GetoptError, e:  # if parsing of options fails, display usage and parse error
         usage(e)
 
@@ -145,6 +147,7 @@ def main():
     label_name = None
     home_directories_loc = '/Users'
     restart_dock = True
+    restart_action = None
 
     for opt, arg in optargs:
         if opt in ("-h", "--help"):
@@ -209,6 +212,8 @@ def main():
             home_directories_loc = arg
         elif opt == '--no-restart':
             restart_dock = False
+        elif opt == '--restart':
+                    restart_action = True
 
         # for legacy compatibility only
         elif opt == '--hupdock':
@@ -216,9 +221,13 @@ def main():
                 restart_dock = False
 
     # check for an action
-    if add_path == None and remove_label == None and move_label == None and find_label == None and list == False:
+    if add_path == None and remove_label == None and move_label == None and find_label == None and list == False and restart_action == None:
         usage('no action was specified')
 
+    # Restart dock action
+    if restart_action == True:
+        restartDock()
+        sys.exit(0)
 
     # get the list of plists to process
     # if allhomes option was set, get a list of home directories in the homedirectory location
@@ -316,7 +325,7 @@ def main():
                 print find_label, "was not found in", plist_path
                 if not all_homes:  # only exit non-zero if we aren't processing all homes, because for allhomes, exit status for find would be irrelevant
                     sys.exit(1)
-            
+
         elif move_label != None: # --move action
             pl = plistFromPath(plist_path)
             # check for a position option before processing
@@ -418,7 +427,7 @@ def moveItem(pl, move_label=None, position=None, before_item=None, after_item=No
         for item_offset in range(len(pl[section])):
             if pl[section][item_offset]['tile-data']['file-label'] == move_label:
                 item_found = True
-                verboseOutput('found', move_label) 
+                verboseOutput('found', move_label)
                 # make a copy of the found dock entry
                 item_to_move = pl[section][item_offset]
                 found_offset = item_offset
@@ -434,7 +443,7 @@ def moveItem(pl, move_label=None, position=None, before_item=None, after_item=No
 
         # figure out where to re-insert the original dock item back into the plist
         if position != None:
-            if position in [ 'beginning', 'begin', 'first' ]:        
+            if position in [ 'beginning', 'begin', 'first' ]:
                 pl[section].insert(0, item_to_move)
                 return True
             elif position in [ 'end', 'last' ]:
@@ -530,7 +539,7 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
             new_item = {'GUID': new_guid, 'tile-data': {'directory': 1, 'file-data': {'_CFURLString': add_path, '_CFURLStringType': 0}, 'file-label': label_name, 'file-type': 2 }, 'tile-type': tile_type}
         else:
             new_item = {'GUID': new_guid, 'tile-data': {'arrangement': arrangement, 'directory': 1, 'displayas': displayas, 'file-data': {'_CFURLString': add_path, '_CFURLStringType': 0}, 'file-label': label_name, 'file-type': 2, 'showas': showas}, 'tile-type': tile_type}
-            
+
     elif tile_type == 'url-tile':
         new_item = {'GUID': new_guid, 'tile-data': {'label': label_name, 'url': {'_CFURLString': add_path, '_CFURLStringType': 15}}, 'tile-type': tile_type}
     else:
@@ -622,12 +631,14 @@ def commitPlist(pl, plist_path, restart_dock):
     os.chown(plist_string_path, plist_stat.st_uid, plist_stat.st_gid)
     os.chmod(plist_string_path, plist_stat.st_mode)
     if restart_dock:
-        os.system('/usr/bin/killall -HUP cfprefsd >/dev/null 2>&1')
-        os.system('/usr/bin/killall -HUP Dock >/dev/null 2>&1')
+        restartDock()
 
+def restartDock():
+    os.system('/usr/bin/killall -HUP cfprefsd >/dev/null 2>&1')
+    os.system('/usr/bin/killall -HUP Dock >/dev/null 2>&1')
 
 def plistFromPath(plist_path):
-    convertPlist(plist_path, 'xml1') 
+    convertPlist(plist_path, 'xml1')
     return readPlist(plist_path)
 
 def label_key_for_tile(item):
@@ -637,23 +648,23 @@ def label_key_for_tile(item):
 
 def removeLongs(pl):  # plistlib can't handle writing longs, so we are removing them as a temporary workaround (hack).  plistlib is fixed, but the version in Leopard is still broken as of 10.5.2  Apple radar 5820629  http://svn.python.org/view?rev=60098&view=rev
     for item in pl['persistent-apps']:
-        try:                                                 
+        try:
             del item['tile-data']['file-mod-date']
-        except:                                    
+        except:
             pass
-        try:                                                 
+        try:
             del item['tile-data']['parent-mod-date']
-        except:                                    
+        except:
             pass
 
     for item in pl['persistent-others']:
-        try:                                                 
+        try:
             del item['tile-data']['file-mod-date']
-        except:                                    
+        except:
             pass
-        try:                                                 
+        try:
             del item['tile-data']['parent-mod-date']
-        except:                                    
+        except:
             pass
     return pl
 

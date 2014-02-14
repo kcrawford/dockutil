@@ -487,6 +487,8 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
     if showas == None: showas = 0
     if arrangement == None: arrangement = 2
 
+    #fix problems with unicode file names
+    add_path = unicode(add_path, sys.stdin.encoding)
 
     # set a dock label if one isn't provided
     if label_name == None:

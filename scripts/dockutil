@@ -622,7 +622,7 @@ def commitPlist(pl, plist_path, restart_dock):
     os.chown(plist_string_path, plist_stat.st_uid, plist_stat.st_gid)
     os.chmod(plist_string_path, plist_stat.st_mode)
     if restart_dock:
-        os.system('/usr/bin/killall -HUP cfprefsd >/dev/null 2>&1')
+        os.system('/usr/bin/defaults read /Library/Preferences/com.apple.dock.plist >/dev/null 2>&1')
         os.system('/usr/bin/killall -HUP Dock >/dev/null 2>&1')
 
 

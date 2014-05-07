@@ -25,7 +25,7 @@ from random import randrange
 
 # default verbose printing to off
 verbose = False
-version = '1.1.4'
+version = '1.1.4b'
 
 def usage(e=None):
     """Displays usage information and error if one occurred"""
@@ -374,9 +374,11 @@ def writePlist(pl, plist_path):
     plist_path = path_as_string(plist_path)
     try:
         plistlib.writePlist(pl, plist_path)
+	plistlib.readPlist(plist_path)
     except AttributeError: # if there was an AttributeError, we may need to use the older method for writing the plist down
         try:
             plistlib.Plist.write(pl, plist_path)
+            plistlib.Plist.read(plist_path)
         except:
             print 'failed to write plist'
             sys.exit(5)
@@ -622,7 +624,6 @@ def commitPlist(pl, plist_path, restart_dock):
     os.chown(plist_string_path, plist_stat.st_uid, plist_stat.st_gid)
     os.chmod(plist_string_path, plist_stat.st_mode)
     if restart_dock:
-        os.system('/usr/bin/defaults read /Library/Preferences/com.apple.dock.plist >/dev/null 2>&1')
         os.system('/usr/bin/killall -HUP Dock >/dev/null 2>&1')
 
 

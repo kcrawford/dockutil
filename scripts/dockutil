@@ -19,13 +19,12 @@
 # Possible future enhancements
 # tie in with application identifier codes for locating apps and replacing them in the dock with newer versions?
 
-import sys, plistlib, subprocess, os, getopt, re, pipes
-from random import randrange
+import sys, plistlib, subprocess, os, getopt, re, pipes, tempfile, pwd
 
 
 # default verbose printing to off
 verbose = False
-version = '1.1.4'
+version = '2.0.0'
 
 def usage(e=None):
     """Displays usage information and error if one occurred"""
@@ -258,20 +257,13 @@ def main():
 
         # check for each action and process accordingly
         if remove_label != None: # --remove action
-            pl = plistFromPath(plist_path)
+            pl = readPlist(plist_path)
             if removeItem(pl, remove_label):
                 commitPlist(pl, plist_path, restart_dock)
             else:
-                convertPlist(plist_path, 'binary1')
                 print 'item', remove_label, 'was not found in', plist_path
         elif list: # --list action
-            try:
-                os.remove('/tmp/com.patternbuffer.dockutil.tmp.plist')
-            except:
-                pass
-            # since we are only reading the plist, make a copy before converting it to be read
-            os.system('cp '+plist_path+' /tmp/com.patternbuffer.dockutil.tmp.plist')
-            pl = plistFromPath('/tmp/com.patternbuffer.dockutil.tmp.plist')
+            pl = readPlist(plist_path)
             # print a tab separated line for each item in the plist
             # for each section
             for section in ['persistent-apps', 'persistent-others']:
@@ -282,20 +274,10 @@ def main():
                         print '\t'.join((item['tile-data']['file-label'], item['tile-data']['file-data']['_CFURLString'], section, plist_path))
                     except:
                         pass
-            # clean up temp file
-            try:
-                os.remove('/tmp/com.patternbuffer.dockutil.tmp.plist')
-            except:
-                pass
 
         elif find_label != None: # --find action
-            try:
-                os.remove('/tmp/com.patternbuffer.dockutil.tmp.plist')
-            except:
-                pass
             # since we are only reading the plist, make a copy before converting it to be read
-            os.system('cp '+plist_path+' /tmp/com.patternbuffer.dockutil.tmp.plist')
-            pl = plistFromPath('/tmp/com.patternbuffer.dockutil.tmp.plist')
+            pl = readPlist(plist_path)
             # set found state
             item_found = False
             # loop through dock items looking for a match with provided find_label
@@ -307,18 +289,13 @@ def main():
                             print find_label, "was found in", section, "at slot", item_offset+1, "in", plist_path
                     except:
                         pass
-            # clean up
-            try:
-                os.remove('/tmp/com.patternbuffer.dockutil.tmp.plist')
-            except:
-                pass
             if not item_found:
                 print find_label, "was not found in", plist_path
                 if not all_homes:  # only exit non-zero if we aren't processing all homes, because for allhomes, exit status for find would be irrelevant
                     sys.exit(1)
-            
+
         elif move_label != None: # --move action
-            pl = plistFromPath(plist_path)
+            pl = readPlist(plist_path)
             # check for a position option before processing
             if position is None and before_item is None and after_item is None:
                 usage('move action requires a position destination')
@@ -326,7 +303,6 @@ def main():
             if moveItem(pl, move_label, position, before_item, after_item):
                 commitPlist(pl, plist_path, restart_dock)
             else:
-                convertPlist(plist_path, 'binary1')
                 print 'move failed for', move_label, 'in', plist_path
 
         elif add_path != None:  # --add action
@@ -358,57 +334,72 @@ def main():
                 real_add_path = os.path.realpath(real_add_path)
 
 
-            pl = plistFromPath(plist_path)
+            pl = readPlist(plist_path)
             verboseOutput('adding', real_add_path)
             # perform the add save the plist if it was successful
             if addItem(pl, real_add_path, replace_label, position, before_item, after_item, section, displayas, showas, arrangement, tile_type, label_name):
                 commitPlist(pl, plist_path, restart_dock)
             else:
-                convertPlist(plist_path, 'binary1')
                 print 'item', add_path, 'was not added to Dock'
                 if not all_homes:  # only exit non-zero if we aren't processing all homes, because for allhomes, exit status for add would be irrelevant
                     sys.exit(1)
 
+# NOTE on use of defaults
+# We use defaults because it knows how to handle cfpreferences caching even when given a path rather than a domain
+# This allows us to keep using path-based plist specifications rather than domains
+# Preserving path based plists are important for people needing to run this on a non boot volume
+# However if Apple stops using plists or moves the plist path, all of this will break
+# So at that point we will have to change the API so users pass in a defaults domain or user rather than a plist path
 def writePlist(pl, plist_path):
     """writes a plist object down to a file"""
+    # get the unescaped path
     plist_path = path_as_string(plist_path)
+    # get a tempfile path for writing our plist
+    plist_import_path = tempfile.mktemp()
+    # Write the plist to our temporary plist for importing because defaults can't import from a pipe (yet)
+    plistlib.writePlist(pl, plist_import_path)
+    # get original permissions
+    plist_stat = os.stat(plist_path)
+    # If we are running as root, ensure we run as the correct user to update cfprefsd
+    if os.geteuid() == 0:
+        # Running defaults as the user only works if the user exists
+        if valid_uid(plist_stat.st_uid):
+            subprocess.Popen(['sudo', '-u', '#%d' % plist_stat.st_uid, '-g', '#%d' % plist_stat.st_gid, 'defaults', 'import', plist_path, plist_import_path])
+        else:
+            subprocess.Popen(['defaults', 'import', plist_path, plist_import_path])
+            os.chown(plist_path, plist_stat.st_uid, plist_stat.st_gid)
+            os.chmod(plist_path, plist_stat.st_mode)
+    else:
+        subprocess.Popen(['defaults', 'import', plist_path, plist_import_path])
+
+
+def valid_uid(uid):
+    """returns bool of whether uid can be resolved to a user"""
     try:
-        plistlib.writePlist(pl, plist_path)
-    except AttributeError: # if there was an AttributeError, we may need to use the older method for writing the plist down
-        try:
-            plistlib.Plist.write(pl, plist_path)
-        except:
-            print 'failed to write plist'
-            sys.exit(5)
+        pwd.getpwuid(uid)
+        return True
+    except:
+        return False
 
 def readPlist(plist_path):
     """returns a plist object read from a file path"""
+    # get the unescaped path
     plist_path = path_as_string(plist_path)
-    try:
-        pl = plistlib.plistFromPath(plist_path)
-    except AttributeError: # there was an AttributeError, we may need to use the older method for reading the plist
-        try:
-            pl = plistlib.Plist.fromFile(plist_path)
-        except:
-            print 'failed to read plist'
-            sys.exit(5)
+    # get a tempfile path for exporting our defaults data
+    export_fifo = tempfile.mktemp()
+    # make a fifo for defaults export in a temp file
+    os.mkfifo(export_fifo)
+    # export to the fifo
+    subprocess.Popen(['defaults', 'export', plist_path, export_fifo]).communicate()
+    # convert the export to xml
+    plist_string = subprocess.Popen(['plutil', '-convert', 'xml1', export_fifo, '-o', '-'], stdout=subprocess.PIPE).stdout.read()
+    # parse the xml into a dictionary
+    pl = plistlib.readPlistFromString(plist_string)
     return pl
 
 def path_as_string(path):
     """returns an unescaped string of the path"""
     return subprocess.Popen('ls -d '+path, shell=True, stdout=subprocess.PIPE).stdout.read().rstrip('\n')
-
-def check_for_unique_guid(pl, new_guid):
-    """loops thru items in the plist to ensure there isn't already a GUID in there that matches the generated GUID, returns False if the GUID is not unique"""
-    for section in ['persistent-apps', 'persistent-others']:
-        for dock_item in pl[section]:
-            try:
-                this_GUID = dock_item['GUID']
-            except:
-                this_GUID = None
-            if this_GUID == new_guid:
-                return False
-        return True
 
 def moveItem(pl, move_label=None, position=None, before_item=None, after_item=None):
     """locates an existing dock item and moves it to a new position"""
@@ -480,6 +471,9 @@ def moveItem(pl, move_label=None, position=None, before_item=None, after_item=No
 
     return False
 
+def generate_guid():
+    """returns guid string"""
+    return subprocess.Popen(['/usr/bin/uuidgen'],stdout=subprocess.PIPE).communicate()[0].rstrip()
 
 def addItem(pl, add_path, replace_label=None, position=None, before_item=None, after_item=None, section='persistent-apps', displayas=1, showas=1, arrangement=2, tile_type='file-tile',label_name=None):
     """adds an item to an existing dock plist object"""
@@ -519,9 +513,7 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
                 position = item_offset + 1
                 break
 
-    new_guid = randrange(999999999)
-    while not check_for_unique_guid(pl, new_guid):
-        new_guid = randrange(999999999)
+    new_guid = generate_guid()
     if tile_type == 'file-tile':
         new_item = {'GUID': new_guid, 'tile-data': {'file-data': {'_CFURLString': add_path, '_CFURLStringType': 0},'file-label': label_name, 'file-type': 32}, 'tile-type': tile_type}
     elif tile_type == 'directory-tile':
@@ -530,7 +522,7 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
             new_item = {'GUID': new_guid, 'tile-data': {'directory': 1, 'file-data': {'_CFURLString': add_path, '_CFURLStringType': 0}, 'file-label': label_name, 'file-type': 2 }, 'tile-type': tile_type}
         else:
             new_item = {'GUID': new_guid, 'tile-data': {'arrangement': arrangement, 'directory': 1, 'displayas': displayas, 'file-data': {'_CFURLString': add_path, '_CFURLStringType': 0}, 'file-label': label_name, 'file-type': 2, 'showas': showas}, 'tile-type': tile_type}
-            
+
     elif tile_type == 'url-tile':
         new_item = {'GUID': new_guid, 'tile-data': {'label': label_name, 'url': {'_CFURLString': add_path, '_CFURLStringType': 15}}, 'tile-type': tile_type}
     else:
@@ -580,21 +572,13 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
     verboseOutput('item added at end')
     return True
 
-def convertPlist(path, format):
-    command = 'plutil -convert '+format+' '+path
-    if os.system(command) != 0:
-        print 'failed to convert plist', '"'+path+'"'
-        sys.exit(1)
-
 def removeItem(pl, item_name):
     removal_succeeded = False
     if item_name == "all":
-		for dock_item in pl['persistent-apps'][:]:
-			verboseOutput('found', dock_item)
-			pl['persistent-apps'].remove(dock_item)
-		for dock_item in pl['persistent-others'][:]:
-			pl['persistent-others'].remove(dock_item)
-		return True
+        verboseOutput('Removing all items')
+        pl['persistent-apps'] = []
+        pl['persistent-others'] = []
+        return True
     for dock_item in pl['persistent-apps']:
         if dock_item['tile-data'].get('file-label') == item_name:
             verboseOutput('found', item_name)
@@ -614,49 +598,27 @@ def removeItem(pl, item_name):
     return removal_succeeded
 
 def commitPlist(pl, plist_path, restart_dock):
-    plist_string_path = path_as_string(plist_path)
-    pl = removeLongs(pl)
-    plist_stat = os.stat(plist_string_path)
     writePlist(pl, plist_path)
-    convertPlist(plist_path, 'binary1')
-    os.chown(plist_string_path, plist_stat.st_uid, plist_stat.st_gid)
-    os.chmod(plist_string_path, plist_stat.st_mode)
     if restart_dock:
-        os.system('/usr/bin/killall -HUP cfprefsd >/dev/null 2>&1')
         os.system('/usr/bin/killall -HUP Dock >/dev/null 2>&1')
 
-
-def plistFromPath(plist_path):
-    convertPlist(plist_path, 'xml1') 
-    return readPlist(plist_path)
+#def commitPlistLegacy(pl, plist_path, restart_dock):
+#    plist_string_path = path_as_string(plist_path)
+#    pl = removeLongs(pl)
+#    plist_stat = os.stat(plist_string_path)
+#    writePlist(pl, plist_path)
+#    convertPlist(plist_path, 'binary1')
+#    os.chown(plist_string_path, plist_stat.st_uid, plist_stat.st_gid)
+#    os.chmod(plist_string_path, plist_stat.st_mode)
+#    if restart_dock:
+#        os.system('/usr/bin/killall -HUP cfprefsd >/dev/null 2>&1')
+#        os.system('/usr/bin/killall -HUP Dock >/dev/null 2>&1')
+#
 
 def label_key_for_tile(item):
     for label_key in ['file-label','label']:
         if item.has_key(label_key):
             return label_key
-
-def removeLongs(pl):  # plistlib can't handle writing longs, so we are removing them as a temporary workaround (hack).  plistlib is fixed, but the version in Leopard is still broken as of 10.5.2  Apple radar 5820629  http://svn.python.org/view?rev=60098&view=rev
-    for item in pl['persistent-apps']:
-        try:                                                 
-            del item['tile-data']['file-mod-date']
-        except:                                    
-            pass
-        try:                                                 
-            del item['tile-data']['parent-mod-date']
-        except:                                    
-            pass
-
-    for item in pl['persistent-others']:
-        try:                                                 
-            del item['tile-data']['file-mod-date']
-        except:                                    
-            pass
-        try:                                                 
-            del item['tile-data']['parent-mod-date']
-        except:                                    
-            pass
-    return pl
-
 
 
 if __name__ == "__main__":

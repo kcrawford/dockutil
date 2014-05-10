@@ -13,6 +13,10 @@ It is currently written in Python and makes use of plistlib module included in M
 
 **CHANGELOG**
 
+Version 2.0.0
+
+- Remove restart of cfprefsd in favor of using defaults
+
 Version 1.1.4
 
 - Restart cfprefsd before restarting Dock to ensure settings are read

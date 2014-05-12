@@ -16,6 +16,8 @@ It is currently written in Python and makes use of plistlib module included in M
 Version 2.0.0
 
 - Remove restart of cfprefsd in favor of using defaults
+- Bumped to version 2 because some backend changes may break compatibility with older OS versions
+- Please test and report any issues
 
 Version 1.1.4
 

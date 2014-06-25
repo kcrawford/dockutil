@@ -20,6 +20,7 @@
 # tie in with application identifier codes for locating apps and replacing them in the dock with newer versions?
 
 import sys, plistlib, subprocess, os, getopt, re, pipes, tempfile, pwd
+import platform
 
 
 # default verbose printing to off
@@ -381,6 +382,15 @@ def valid_uid(uid):
     except:
         return False
 
+def getOsxVersion():
+    """returns a tuple with the (major,minor,revision) numbers"""
+    try:
+        mac_ver = tuple( [ int(n) for n in platform.mac_ver()[0].split('.') ] )
+        assert len(mac_ver) == 3
+    except Exception as e:
+        raise e
+    return mac_ver
+
 def readPlist(plist_path):
     """returns a plist object read from a file path"""
     # get the unescaped path
@@ -390,9 +400,18 @@ def readPlist(plist_path):
     # make a fifo for defaults export in a temp file
     os.mkfifo(export_fifo)
     # export to the fifo
-    subprocess.Popen(['defaults', 'export', plist_path, export_fifo]).communicate()
-    # convert the export to xml
-    plist_string = subprocess.Popen(['plutil', '-convert', 'xml1', export_fifo, '-o', '-'], stdout=subprocess.PIPE).stdout.read()
+    osx_version = getOsxVersion()
+    if osx_version[1] >= 9:
+        subprocess.Popen(['defaults', 'export', plist_path, export_fifo]).communicate()
+        # convert the export to xml
+        plist_string = subprocess.Popen(['plutil', '-convert', 'xml1', export_fifo, '-o', '-'], stdout=subprocess.PIPE).stdout.read()
+    else:
+        try:
+            cmd = ['/usr/libexec/PlistBuddy','-x','-c', 'print',plist_path]
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (plist_string,err) = proc.communicate()
+        except Exception as e:
+            raise e
     # parse the xml into a dictionary
     pl = plistlib.readPlistFromString(plist_string)
     return pl

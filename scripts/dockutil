@@ -218,7 +218,7 @@ def main():
 
         # for legacy compatibility only
         elif opt == '--hupdock':
-            if arg.lower() == "false" or arg.lower() == "no":
+            if arg.lower() in ("false", "no", "off", "0"):
                 restart_dock = False
 
     # check for an action

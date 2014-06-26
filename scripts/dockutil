@@ -101,6 +101,7 @@ Contact:
     if e:
         print ""
         print 'Error processing options:', e
+        sys.exit(1)
     sys.exit(0)
 
 def verboseOutput(*args):

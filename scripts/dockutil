@@ -183,6 +183,8 @@ def main():
                 arrangement = 4
             elif arg == 'kind':
                 arrangement = 5
+            else:
+                usage('unsupported --sort argument')
         elif opt == '--view':
             if arg == 'fan':
                 showas = 1
@@ -192,11 +194,15 @@ def main():
                 showas = 3
             elif arg == 'auto':
                 showas = 0
+            else:
+                usage('unsupported --view argument')
         elif opt == '--display':
             if arg == 'stack':
                 displayas = 0
-            else:
+            elif arg == 'folder':
                 displayas = 1
+            else:
+                usage('unsupported --display argument')
         elif opt == '--type':
             tile_type = arg+'-tile'
         elif opt == '--section':

@@ -126,7 +126,7 @@ def main():
     # setup default values
     global verbose
     add_path = None
-    remove_label = None
+    remove_labels = []
     find_label = None
     move_label = None
     after_item = None
@@ -163,7 +163,7 @@ def main():
         elif opt == "--find":
             find_label = arg
         elif opt == "--remove":
-            remove_label = arg
+            remove_labels.append(arg)
         elif opt == "--after":
             after_item = arg
         elif opt == "--before":
@@ -216,7 +216,7 @@ def main():
                 restart_dock = False
 
     # check for an action
-    if add_path == None and remove_label == None and move_label == None and find_label == None and list == False:
+    if add_path == None and not remove_labels and move_label == None and find_label == None and list == False:
         usage('no action was specified')
 
 
@@ -257,12 +257,16 @@ def main():
 
 
         # check for each action and process accordingly
-        if remove_label != None: # --remove action
+        if remove_labels: # --remove action(s)
             pl = readPlist(plist_path)
-            if removeItem(pl, remove_label):
+            changed = False
+            for remove_label in remove_labels:
+                if removeItem(pl, remove_label):
+                    changed = True
+                else:
+                    print 'item', remove_label, 'was not found in', plist_path
+            if changed:
                 commitPlist(pl, plist_path, restart_dock)
-            else:
-                print 'item', remove_label, 'was not found in', plist_path
         elif list: # --list action
             pl = readPlist(plist_path)
             # print a tab separated line for each item in the plist

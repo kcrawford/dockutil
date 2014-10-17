@@ -384,11 +384,14 @@ def valid_uid(uid):
 
 def getOsxVersion():
     """returns a tuple with the (major,minor,revision) numbers"""
+    # OS X Yosemite return 10.10, so we will be happy with len(...) == 2, then add 0 for last number
     try:
         mac_ver = tuple( [ int(n) for n in platform.mac_ver()[0].split('.') ] )
-        assert len(mac_ver) == 3
+        assert len(mac_ver) == 2
     except Exception as e:
         raise e
+    if len(mac_ver) == 2:
+      mac_ver = mac_ver + (0,)
     return mac_ver
 
 def readPlist(plist_path):

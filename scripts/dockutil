@@ -29,79 +29,79 @@ version = '2.0.0'
 
 def usage(e=None):
     """Displays usage information and error if one occurred"""
-    name = os.path.basename(sys.argv[0])
 
-    print "usage:     %s -h" % (name,)
-    print "usage:     %s --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [ plist_location_specification ] [--no-restart]" % (name,)
-    print "usage:     %s --remove <dock item label> | all [ plist_location_specification ] [--no-restart]" % (name,)
-    print "usage:     %s --move <dock item label>  position_options [ plist_location_specification ]" % (name,)
-    print "usage:     %s --find <dock item label> [ plist_location_specification ]" % (name,)
-    print "usage:     %s --list [ plist_location_specification ]" % (name,)
-    print "usage:     %s --version" % (name,)
-    print ""
-    print "position_options:"
-    print "  --replacing <dock item label name>                            replaces the item with the given dock label or adds the item to the end if item to replace is not found"
-    print "  --position [ index_number | beginning | end | middle ]        inserts the item at a fixed position: can be an position by index number or keyword"
-    print "  --after <dock item label name>                                inserts the item immediately after the given dock label or at the end if the item is not found"
-    print "  --before <dock item label name>                               inserts the item immediately before the given dock label or at the end if the item is not found"
-    print "  --section [ apps | others ]                                   specifies whether the item should be added to the apps or others section"
-    print ""
-    print "plist_location_specifications:"
-    print "  <path to a specific plist>                                    default is the dock plist for current user"
-    print "  <path to a home directory>"
-    print "  --allhomes                                                    attempts to locate all home directories and perform the operation on each of them"
-    print "  --homeloc                                                     overrides the default /Users location for home directories"
-    print ""
-    print "folder_options:"
-    print "  --view [grid|fan|list|automatic]                              stack view option"
-    print "  --display [folder|stack]                                      how to display a folder's icon"
-    print "  --sort [name|dateadded|datemodified|datecreated|kind]         sets sorting option for a folder view"
-    print ""
-    print "Examples:"
-    print "  The following adds TextEdit.app to the end of the current user's dock:"
-    print "           %s --add /Applications/TextEdit.app" % (name,)
-    print ""
-    print "  The following replaces Time Machine with TextEdit.app in the current user's dock:"
-    print "           %s --add /Applications/TextEdit.app --replacing 'Time Machine'" % (name,)
-    print ""
-    print "  The following adds TextEdit.app after the item Time Machine in every user's dock on that machine:"
-    print "           %s --add /Applications/TextEdit.app --after 'Time Machine' --allhomes" % (name,)
-    print ""
-    print "  The following adds ~/Downloads as a grid stack displayed as a folder for every user's dock on that machine:"
-    print "           %s --add '~/Downloads' --view grid --display folder --allhomes" % (name,)
-    print ""
-    print "  The following adds a url dock item after the Downloads dock item for every user's dock on that machine:"
-    print "           %s --add vnc://miniserver.local --label 'Mini VNC' --after Downloads --allhomes" % (name,)
-    print ""
-    print "  The following removes System Preferences from every user's dock on that machine:"
-    print "           %s --remove 'System Preferences' --allhomes" % (name,)
-    print ""
-    print "  The following moves System Preferences to the second slot on every user's dock on that machine:"
-    print "           %s --move 'System Preferences' --position 2 --allhomes" % (name,)
-    print ""
-    print "  The following finds any instance of iTunes in the specified home directory's dock:"
-    print "           %s --find iTunes /Users/jsmith" % (name,)
-    print ""
-    print "  The following lists all dock items for all home directories at homeloc in the form: item<tab>path<tab><section>tab<plist>"
-    print "           %s --list --homeloc /Volumes/RAID/Homes --allhomes" % (name,)
-    print ""
-    print "  The following adds Firefox after Safari in the Default User Template without restarting the Dock"
-    print "           %s --add /Applications/Firefox.app --after Safari --no-restart '/System/Library/User Template/English.lproj'" % (name,)
-    print ""
-    print ""
-    print "Notes:"
-    print "  When specifying a relative path like ~/Documents with the --allhomes option, ~/Documents must be quoted like '~/Documents' to get the item relative to each home"
-    print ""
-    print "Bugs:"
-    print "  Names containing special characters like accent marks will fail"
-    print ""
-    print ""
-    print "Contact:"
-    print "  Send bug reports and comments to kcrwfrd at gmail."
-    print ""
-    if e != None:
+    print """usage:     %(progname)s -h
+usage:     %(progname)s --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [ plist_location_specification ] [--no-restart]
+usage:     %(progname)s --remove <dock item label> | all [ plist_location_specification ] [--no-restart]
+usage:     %(progname)s --move <dock item label>  position_options [ plist_location_specification ]
+usage:     %(progname)s --find <dock item label> [ plist_location_specification ]
+usage:     %(progname)s --list [ plist_location_specification ]
+usage:     %(progname)s --version
+
+position_options:
+  --replacing <dock item label name>                            replaces the item with the given dock label or adds the item to the end if item to replace is not found
+  --position [ index_number | beginning | end | middle ]        inserts the item at a fixed position: can be an position by index number or keyword
+  --after <dock item label name>                                inserts the item immediately after the given dock label or at the end if the item is not found
+  --before <dock item label name>                               inserts the item immediately before the given dock label or at the end if the item is not found
+  --section [ apps | others ]                                   specifies whether the item should be added to the apps or others section
+
+plist_location_specifications:
+  <path to a specific plist>                                    default is the dock plist for current user
+  <path to a home directory>
+  --allhomes                                                    attempts to locate all home directories and perform the operation on each of them
+  --homeloc                                                     overrides the default /Users location for home directories
+
+folder_options:
+  --view [grid|fan|list|automatic]                              stack view option
+  --display [folder|stack]                                      how to display a folder's icon
+  --sort [name|dateadded|datemodified|datecreated|kind]         sets sorting option for a folder view
+
+Examples:
+  The following adds TextEdit.app to the end of the current user's dock:
+           %(progname)s --add /Applications/TextEdit.app
+
+  The following replaces Time Machine with TextEdit.app in the current user's dock:
+           %(progname)s --add /Applications/TextEdit.app --replacing 'Time Machine'
+
+  The following adds TextEdit.app after the item Time Machine in every user's dock on that machine:
+           %(progname)s --add /Applications/TextEdit.app --after 'Time Machine' --allhomes
+
+  The following adds ~/Downloads as a grid stack displayed as a folder for every user's dock on that machine:
+           %(progname)s --add '~/Downloads' --view grid --display folder --allhomes
+
+  The following adds a url dock item after the Downloads dock item for every user's dock on that machine:
+           %(progname)s --add vnc://miniserver.local --label 'Mini VNC' --after Downloads --allhomes
+
+  The following removes System Preferences from every user's dock on that machine:
+           %(progname)s --remove 'System Preferences' --allhomes
+
+  The following moves System Preferences to the second slot on every user's dock on that machine:
+           %(progname)s --move 'System Preferences' --position 2 --allhomes
+
+  The following finds any instance of iTunes in the specified home directory's dock:
+           %(progname)s --find iTunes /Users/jsmith
+
+  The following lists all dock items for all home directories at homeloc in the form: item<tab>path<tab><section>tab<plist>
+           %(progname)s --list --homeloc /Volumes/RAID/Homes --allhomes
+
+  The following adds Firefox after Safari in the Default User Template without restarting the Dock
+           %(progname)s --add /Applications/Firefox.app --after Safari --no-restart '/System/Library/User Template/English.lproj'
+
+
+Notes:
+  When specifying a relative path like ~/Documents with the --allhomes option, ~/Documents must be quoted like '~/Documents' to get the item relative to each home
+
+Bugs:
+  Names containing special characters like accent marks will fail
+
+
+Contact:
+  Send bug reports and comments to kcrwfrd at gmail.
+""" % dict(progname = os.path.basename(sys.argv[0]))
+    if e:
         print ""
         print 'Error processing options:', e
+        sys.exit(1)
     sys.exit(0)
 
 def verboseOutput(*args):
@@ -126,7 +126,7 @@ def main():
     # setup default values
     global verbose
     add_path = None
-    remove_label = None
+    remove_labels = []
     find_label = None
     move_label = None
     after_item = None
@@ -163,7 +163,7 @@ def main():
         elif opt == "--find":
             find_label = arg
         elif opt == "--remove":
-            remove_label = arg
+            remove_labels.append(arg)
         elif opt == "--after":
             after_item = arg
         elif opt == "--before":
@@ -183,6 +183,8 @@ def main():
                 arrangement = 4
             elif arg == 'kind':
                 arrangement = 5
+            else:
+                usage('unsupported --sort argument')
         elif opt == '--view':
             if arg == 'fan':
                 showas = 1
@@ -192,11 +194,15 @@ def main():
                 showas = 3
             elif arg == 'auto':
                 showas = 0
+            else:
+                usage('unsupported --view argument')
         elif opt == '--display':
             if arg == 'stack':
                 displayas = 0
-            else:
+            elif arg == 'folder':
                 displayas = 1
+            else:
+                usage('unsupported --display argument')
         elif opt == '--type':
             tile_type = arg+'-tile'
         elif opt == '--section':
@@ -212,11 +218,11 @@ def main():
 
         # for legacy compatibility only
         elif opt == '--hupdock':
-            if arg.lower() == "false" or arg.lower() == "no":
+            if arg.lower() in ("false", "no", "off", "0"):
                 restart_dock = False
 
     # check for an action
-    if add_path == None and remove_label == None and move_label == None and find_label == None and list == False:
+    if add_path == None and not remove_labels and move_label == None and find_label == None and list == False:
         usage('no action was specified')
 
 
@@ -257,12 +263,16 @@ def main():
 
 
         # check for each action and process accordingly
-        if remove_label != None: # --remove action
+        if remove_labels: # --remove action(s)
             pl = readPlist(plist_path)
-            if removeItem(pl, remove_label):
+            changed = False
+            for remove_label in remove_labels:
+                if removeItem(pl, remove_label):
+                    changed = True
+                else:
+                    print 'item', remove_label, 'was not found in', plist_path
+            if changed:
                 commitPlist(pl, plist_path, restart_dock)
-            else:
-                print 'item', remove_label, 'was not found in', plist_path
         elif list: # --list action
             pl = readPlist(plist_path)
             # print a tab separated line for each item in the plist

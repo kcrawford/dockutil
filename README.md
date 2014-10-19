@@ -14,6 +14,9 @@ It is currently written in Python and makes use of plistlib module included in M
 
 **CHANGELOG**
 
+Version 2.0.2
+- Bug Fix for 10.9.x
+
 Version 2.0.1
 
 - Yosemite compatibility

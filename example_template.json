@@ -1,0 +1,12 @@
+{
+  "_Remove_this_comment_to_affect_only_these_named___users": [
+    "joe", "jim", "jack"
+  ],
+  "remove":[
+    "Mission Control",
+    "iBooks"
+  ],
+  "add":[
+    "\/System\/Library\/Frameworks\/ScreenSaver.framework\/Versions\/A\/Resources\/ScreenSaverEngine.app"
+  ]
+}

@@ -19,7 +19,7 @@
 # Possible future enhancements
 # tie in with application identifier codes for locating apps and replacing them in the dock with newer versions?
 
-import sys, plistlib, subprocess, os, getopt, re, pipes, tempfile, pwd
+import sys, plistlib, subprocess, os, getopt, re, pipes, tempfile, pwd, getpass, json
 import platform
 
 
@@ -36,6 +36,7 @@ usage:     %(progname)s --remove <dock item label> | all [ plist_location_specif
 usage:     %(progname)s --move <dock item label>  position_options [ plist_location_specification ]
 usage:     %(progname)s --find <dock item label> [ plist_location_specification ]
 usage:     %(progname)s --list [ plist_location_specification ]
+usage:     %(progname)s --apply-template [ json_template_location_specification ]
 usage:     %(progname)s --version
 
 position_options:
@@ -81,6 +82,9 @@ Examples:
   The following finds any instance of iTunes in the specified home directory's dock:
            %(progname)s --find iTunes /Users/jsmith
 
+  The following will ensure all items given in example_template.json will be absent or present in dock for current user:
+           %(progname)s --apply-template example_template.json
+
   The following lists all dock items for all home directories at homeloc in the form: item<tab>path<tab><section>tab<plist>
            %(progname)s --list --homeloc /Volumes/RAID/Homes --allhomes
 
@@ -118,7 +122,7 @@ def main():
     try:
         (optargs, args) = getopt.getopt(sys.argv[1:], 'hv', ["help", "version",
             "section=", "list", "find=", "add=", "move=", "replacing=",
-            "remove=", "after=", "before=", "position=", "display=", "view=",
+            "remove=", "after=", "before=", "position=", "display=", "view=", "apply-template=",
             "sort=", "label=", "type=", "allhomes", "homeloc=", "no-restart", "hupdock="])
     except getopt.GetoptError, e:  # if parsing of options fails, display usage and parse error
         usage(e)
@@ -134,6 +138,7 @@ def main():
     position = None
     add_path = None
     plist_path = None
+    template_path = None
     list = False
     all_homes = False
     replace_label = None
@@ -185,6 +190,8 @@ def main():
                 arrangement = 5
             else:
                 usage('unsupported --sort argument')
+        elif opt == "--apply-template":
+            template_path = arg
         elif opt == '--view':
             if arg == 'fan':
                 showas = 1
@@ -222,9 +229,35 @@ def main():
                 restart_dock = False
 
     # check for an action
-    if add_path == None and not remove_labels and move_label == None and find_label == None and list == False:
+    if add_path == None and not remove_labels and move_label == None and find_label == None and list == False and template_path == None:
         usage('no action was specified')
 
+    # --template <template.json> action: apply template to current user
+    # given he is in the 'users' list of the template.
+    if template_path != None:
+        if not os.path.isfile(template_path):
+          usage('given JSON template file not found')
+        user = getpass.getuser()
+        dockutil = os.path.realpath(__file__)
+        fp = open(template_path, "r")
+        js = json.load(fp)
+        if 'users' in js and not user in js['users']:
+          verboseOutput('User not in template list - leaving dock untouched', user)
+          sys.exit(0)
+        # calling ourself like this... surely could be improved
+        output = os.popen(dockutil + ' --list').read()
+        for remove in js['remove']:
+          if re.search(remove, output, re.MULTILINE):
+            cmd = dockutil + " --remove '" + remove + "'"
+            verboseOutput('Template-Remove-Item', cmd)
+            os.system(cmd)
+        for add in js['add']:
+          if not re.search(add, output, re.MULTILINE):
+            # would be nice to have options here (position...)
+            cmd = dockutil + " --add '" + add + "'"
+            verboseOutput('Template-Add-Item', cmd)
+            os.system(cmd)
+        sys.exit(0)
 
     # get the list of plists to process
     # if allhomes option was set, get a list of home directories in the homedirectory location
@@ -441,7 +474,7 @@ def moveItem(pl, move_label=None, position=None, before_item=None, after_item=No
         for item_offset in range(len(pl[section])):
             if pl[section][item_offset]['tile-data']['file-label'] == move_label:
                 item_found = True
-                verboseOutput('found', move_label) 
+                verboseOutput('found', move_label)
                 # make a copy of the found dock entry
                 item_to_move = pl[section][item_offset]
                 found_offset = item_offset
@@ -457,7 +490,7 @@ def moveItem(pl, move_label=None, position=None, before_item=None, after_item=No
 
         # figure out where to re-insert the original dock item back into the plist
         if position != None:
-            if position in [ 'beginning', 'begin', 'first' ]:        
+            if position in [ 'beginning', 'begin', 'first' ]:
                 pl[section].insert(0, item_to_move)
                 return True
             elif position in [ 'end', 'last' ]:

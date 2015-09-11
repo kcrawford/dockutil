@@ -52,7 +52,7 @@ plist_location_specifications:
   --homeloc                                                     overrides the default /Users location for home directories
 
 folder_options:
-  --view [grid|fan|list|automatic]                              stack view option
+  --view [grid|fan|list|auto]                                   stack view option
   --display [folder|stack]                                      how to display a folder's icon
   --sort [name|dateadded|datemodified|datecreated|kind]         sets sorting option for a folder view
 

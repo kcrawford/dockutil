@@ -21,11 +21,12 @@
 
 import sys, plistlib, subprocess, os, getopt, re, pipes, tempfile, pwd
 import platform
+import time
 
 
 # default verbose printing to off
 verbose = False
-version = '2.0.2'
+version = '2.0.3'
 
 def usage(e=None):
     """Displays usage information and error if one occurred"""
@@ -55,6 +56,9 @@ folder_options:
   --view [grid|fan|list|automatic]                              stack view option
   --display [folder|stack]                                      how to display a folder's icon
   --sort [name|dateadded|datemodified|datecreated|kind]         sets sorting option for a folder view
+
+global_options:
+  -v                                                            verbose output
 
 Examples:
   The following adds TextEdit.app to the end of the current user's dock:
@@ -261,6 +265,20 @@ def main():
             print plist_path, 'does not seem to be a home directory or a dock plist'
             sys.exit(1)
 
+        # If we are modifying the currently logged in user's dock, wait for mod-count to be > 1 because dock is still being setup by Apple
+        if os.stat(plist_path).st_uid == os.stat('/dev/console').st_uid:
+            pl = readPlist(plist_path)
+            mod_count = int(pl.get('mod-count', 0))
+            seconds_waited = 0
+            while mod_count < 2 and seconds_waited < 5:
+                verboseOutput("Waiting for Apple's initial dock setup. Dock mod-count is: %s (should be > 1 after Apple's setup is done)" % mod_count)
+                time.sleep(1)
+                seconds_waited += 1
+                verboseOutput("Waited %s seconds so far" % seconds_waited)
+                pl = readPlist(plist_path)
+                mod_count = int(pl.get('mod-count', 0))
+            if mod_count < 2:
+                verboseOutput("Warning: Timed out waiting for dock to be setup (mod-count > 1). Modifications may not work as expected without Apple's initial setup")
 
         # check for each action and process accordingly
         if remove_labels: # --remove action(s)

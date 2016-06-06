@@ -14,6 +14,9 @@ It is currently written in Python and makes use of plistlib module included in M
 
 **CHANGELOG**
 
+Version 2.0.3
+- Wait for dock to be setup by Apple before modifying (useful for first login scripts)
+
 Version 2.0.2
 - Bug Fix for 10.9.x
 

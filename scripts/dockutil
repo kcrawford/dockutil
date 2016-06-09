@@ -381,7 +381,7 @@ def main():
 def writePlist(pl, plist_path):
     """writes a plist object down to a file"""
     # get a tempfile path for writing our plist
-    plist_import_path = tempfile.mktemp()
+    plist_import_path = tempfile.mktemp(dir='/tmp')
     # Write the plist to our temporary plist for importing because defaults can't import from a pipe (yet)
     plistlib.writePlist(pl, plist_import_path)
     # get original permissions
@@ -390,13 +390,14 @@ def writePlist(pl, plist_path):
     if os.geteuid() == 0:
         # Running defaults as the user only works if the user exists
         if valid_uid(plist_stat.st_uid):
-            subprocess.Popen(['sudo', '-u', '#%d' % plist_stat.st_uid, '-g', '#%d' % plist_stat.st_gid, 'defaults', 'import', plist_path, plist_import_path])
+            subprocess.call(['sudo', '-u', '#%d' % plist_stat.st_uid, '-g', '#%d' % plist_stat.st_gid, 'defaults', 'import', plist_path, plist_import_path])
         else:
-            subprocess.Popen(['defaults', 'import', plist_path, plist_import_path])
+            subprocess.call(['defaults', 'import', plist_path, plist_import_path])
             os.chown(plist_path, plist_stat.st_uid, plist_stat.st_gid)
             os.chmod(plist_path, plist_stat.st_mode)
     else:
-        subprocess.Popen(['defaults', 'import', plist_path, plist_import_path])
+        subprocess.call(['defaults', 'import', plist_path, plist_import_path])
+    os.unlink(plist_import_path)
 
 
 def valid_uid(uid):

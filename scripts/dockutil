@@ -260,7 +260,6 @@ def main():
         if os.path.exists(os.path.expanduser(plist_path)):
             plist_path = os.path.expanduser(plist_path)
             plist_path = os.path.abspath(plist_path)
-            plist_path = pipes.quote(plist_path)
         else:
             print plist_path, 'does not seem to be a home directory or a dock plist'
             sys.exit(1)
@@ -381,10 +380,8 @@ def main():
 # So at that point we will have to change the API so users pass in a defaults domain or user rather than a plist path
 def writePlist(pl, plist_path):
     """writes a plist object down to a file"""
-    # get the unescaped path
-    plist_path = path_as_string(plist_path)
     # get a tempfile path for writing our plist
-    plist_import_path = tempfile.mktemp()
+    plist_import_path = tempfile.mktemp(dir='/tmp')
     # Write the plist to our temporary plist for importing because defaults can't import from a pipe (yet)
     plistlib.writePlist(pl, plist_import_path)
     # get original permissions
@@ -393,13 +390,14 @@ def writePlist(pl, plist_path):
     if os.geteuid() == 0:
         # Running defaults as the user only works if the user exists
         if valid_uid(plist_stat.st_uid):
-            subprocess.Popen(['sudo', '-u', '#%d' % plist_stat.st_uid, '-g', '#%d' % plist_stat.st_gid, 'defaults', 'import', plist_path, plist_import_path])
+            subprocess.call(['sudo', '-u', '#%d' % plist_stat.st_uid, '-g', '#%d' % plist_stat.st_gid, 'defaults', 'import', plist_path, plist_import_path])
         else:
-            subprocess.Popen(['defaults', 'import', plist_path, plist_import_path])
+            subprocess.call(['defaults', 'import', plist_path, plist_import_path])
             os.chown(plist_path, plist_stat.st_uid, plist_stat.st_gid)
             os.chmod(plist_path, plist_stat.st_mode)
     else:
-        subprocess.Popen(['defaults', 'import', plist_path, plist_import_path])
+        subprocess.call(['defaults', 'import', plist_path, plist_import_path])
+    os.unlink(plist_import_path)
 
 
 def valid_uid(uid):
@@ -424,8 +422,6 @@ def getOsxVersion():
 
 def readPlist(plist_path):
     """returns a plist object read from a file path"""
-    # get the unescaped path
-    plist_path = path_as_string(plist_path)
     # get a tempfile path for exporting our defaults data
     export_fifo = tempfile.mktemp()
     # make a fifo for defaults export in a temp file
@@ -446,10 +442,6 @@ def readPlist(plist_path):
     # parse the xml into a dictionary
     pl = plistlib.readPlistFromString(plist_string)
     return pl
-
-def path_as_string(path):
-    """returns an unescaped string of the path"""
-    return subprocess.Popen('ls -d '+path, shell=True, stdout=subprocess.PIPE).stdout.read().rstrip('\n')
 
 def moveItem(pl, move_label=None, position=None, before_item=None, after_item=None):
     """locates an existing dock item and moves it to a new position"""

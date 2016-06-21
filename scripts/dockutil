@@ -26,14 +26,14 @@ import time
 
 # default verbose printing to off
 verbose = False
-version = '2.0.3'
+version = '2.0.4'
 
 def usage(e=None):
     """Displays usage information and error if one occurred"""
 
     print """usage:     %(progname)s -h
 usage:     %(progname)s --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [ plist_location_specification ] [--no-restart]
-usage:     %(progname)s --remove <dock item label> | all [ plist_location_specification ] [--no-restart]
+usage:     %(progname)s --remove <dock item label> | <app bundle id> | all [ plist_location_specification ] [--no-restart]
 usage:     %(progname)s --move <dock item label>  position_options [ plist_location_specification ]
 usage:     %(progname)s --find <dock item label> [ plist_location_specification ]
 usage:     %(progname)s --list [ plist_location_specification ]
@@ -633,7 +633,7 @@ def removeItem(pl, item_name):
         pl['persistent-others'] = []
         return True
     for dock_item in pl['persistent-apps']:
-        if dock_item['tile-data'].get('file-label') == item_name:
+        if (dock_item['tile-data'].get('file-label') == item_name) or (dock_item['tile-data'].get('bundle-identifier') == item_name):
             verboseOutput('found', item_name)
             pl['persistent-apps'].remove(dock_item)
             removal_succeeded = True

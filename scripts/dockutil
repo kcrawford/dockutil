@@ -619,7 +619,8 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
 
 def removeItem(pl, item_name):
     removal_succeeded = False
-    if item_name == "all":
+    item_name = item_name.decode('utf-8')
+    if item_name == u'all':
         verboseOutput('Removing all items')
         pl['persistent-apps'] = []
         pl['persistent-others'] = []

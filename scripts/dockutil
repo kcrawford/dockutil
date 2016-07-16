@@ -95,9 +95,6 @@ Examples:
 Notes:
   When specifying a relative path like ~/Documents with the --allhomes option, ~/Documents must be quoted like '~/Documents' to get the item relative to each home
 
-Bugs:
-  Names containing special characters like accent marks will fail
-
 
 Contact:
   Send bug reports and comments to kcrwfrd at gmail.

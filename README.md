@@ -65,8 +65,8 @@ Version 1.1
 **USAGE**
 
     usage:     dockutil -h
-    usage:     dockutil --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [ plist_location_specification ] [--no-restart]
-    usage:     dockutil --remove <dock item label> | <app bundle id> | all [ plist_location_specification ] [--no-restart]
+    usage:     dockutil --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [--no-restart] [ plist_location_specification ]
+    usage:     dockutil --remove <dock item label> | <app bundle id> | all [--no-restart] [ plist_location_specification ]
     usage:     dockutil --move <dock item label>  position_options [ plist_location_specification ]
     usage:     dockutil --find <dock item label> [ plist_location_specification ]
     usage:     dockutil --list [ plist_location_specification ]

@@ -91,6 +91,8 @@ Examples:
   The following adds Firefox after Safari in the Default User Template without restarting the Dock
            %(progname)s --add /Applications/Firefox.app --after Safari --no-restart '/System/Library/User Template/English.lproj'
 
+  The following adds a spacer tile in the apps section after Mail
+           %(progname)s --add '' --type spacer --section apps --after Mail
 
 Notes:
   When specifying a relative path like ~/Documents with the --allhomes option, ~/Documents must be quoted like '~/Documents' to get the item relative to each home
@@ -567,6 +569,8 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
 
     elif tile_type == 'url-tile':
         new_item = {'GUID': new_guid, 'tile-data': {'label': label_name, 'url': {'_CFURLString': add_path, '_CFURLStringType': 15}}, 'tile-type': tile_type}
+    elif tile_type == 'spacer-tile':
+        new_item = {'GUID': new_guid, 'tile-data': {}, 'tile-type': tile_type}
     else:
         print 'unknown type:', tile_type
         sys.exit(1)

@@ -121,6 +121,8 @@ Version 1.1
       The following adds Firefox after Safari in the Default User Template without restarting the Dock
                dockutil --add /Applications/Firefox.app --after Safari --no-restart '/System/Library/User Template/English.lproj'
 
+      The following adds a spacer tile in the apps section after Mail
+               dockutil --add '' --type spacer --section apps --after Mail
 
     Notes:
       When specifying a relative path like ~/Documents with the --allhomes option, ~/Documents must be quoted like '~/Documents' to get the item relative to each home

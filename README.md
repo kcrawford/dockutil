@@ -66,7 +66,7 @@ Version 1.1
 
     usage:     dockutil -h
     usage:     dockutil --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [--no-restart] [ plist_location_specification ]
-    usage:     dockutil --remove <dock item label> | <app bundle id> | all [--no-restart] [ plist_location_specification ]
+    usage:     dockutil --remove <dock item label> | <app bundle id> | all | spacer-tiles [--no-restart] [ plist_location_specification ]
     usage:     dockutil --move <dock item label>  position_options [ plist_location_specification ]
     usage:     dockutil --find <dock item label> [ plist_location_specification ]
     usage:     dockutil --list [ plist_location_specification ]
@@ -123,6 +123,9 @@ Version 1.1
 
       The following adds a spacer tile in the apps section after Mail
                dockutil --add '' --type spacer --section apps --after Mail
+
+      The following removes all spacer tiles
+               dockutil --remove spacer-tiles
 
     Notes:
       When specifying a relative path like ~/Documents with the --allhomes option, ~/Documents must be quoted like '~/Documents' to get the item relative to each home

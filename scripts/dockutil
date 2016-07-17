@@ -26,14 +26,14 @@ import time
 
 # default verbose printing to off
 verbose = False
-version = '2.0.4'
+version = '2.0.5'
 
 def usage(e=None):
     """Displays usage information and error if one occurred"""
 
     print """usage:     %(progname)s -h
 usage:     %(progname)s --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [--no-restart] [ plist_location_specification ]
-usage:     %(progname)s --remove <dock item label> | <app bundle id> | all [--no-restart] [ plist_location_specification ]
+usage:     %(progname)s --remove <dock item label> | <app bundle id> | all | spacer-tiles [--no-restart] [ plist_location_specification ]
 usage:     %(progname)s --move <dock item label>  position_options [ plist_location_specification ]
 usage:     %(progname)s --find <dock item label> [ plist_location_specification ]
 usage:     %(progname)s --list [ plist_location_specification ]
@@ -93,6 +93,9 @@ Examples:
 
   The following adds a spacer tile in the apps section after Mail
            %(progname)s --add '' --type spacer --section apps --after Mail
+
+  The following removes all spacer tiles
+           %(progname)s --remove spacer-tiles
 
 Notes:
   When specifying a relative path like ~/Documents with the --allhomes option, ~/Documents must be quoted like '~/Documents' to get the item relative to each home
@@ -626,6 +629,13 @@ def removeItem(pl, item_name):
         pl['persistent-apps'] = []
         pl['persistent-others'] = []
         return True
+    if item_name == u'spacer-tiles':
+        verboseOutput('Removing all spacers')
+        for section in ['persistent-apps', 'persistent-others']:
+            for item in pl.get(section, []):
+                if item['tile-type'] == "spacer-tile":
+                    pl[section].remove(item)
+                    removal_succeeded = True
     for dock_item in pl['persistent-apps']:
         if (dock_item['tile-data'].get('file-label') == item_name) or (dock_item['tile-data'].get('bundle-identifier') == item_name):
             verboseOutput('found', item_name)

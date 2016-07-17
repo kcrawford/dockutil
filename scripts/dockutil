@@ -295,7 +295,7 @@ def main():
             # for each section
             for section in ['persistent-apps', 'persistent-others']:
                 # for item in section
-                for item in pl[section]:
+                for item in pl.get(section, []):
                     try:
                         # join and print relevant data into a string separated by tabs
                         print '\t'.join((item['tile-data']['file-label'], item['tile-data']['file-data']['_CFURLString'], section, plist_path))

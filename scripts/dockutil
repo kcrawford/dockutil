@@ -345,6 +345,9 @@ def main():
                 print 'move failed for', move_label, 'in', plist_path
 
         elif add_path != None:  # --add action
+            if add_path.startswith('file://'): # remove 'file://' from start of path, so its not treated as a url
+                add_path = re.sub('^file://', '', add_path)
+
             if add_path.startswith('~'): # we've got a relative path and relative paths need to be processed by using a path relative to this home directory
                 real_add_path = re.sub('^~', plist_path.replace('/Library/Preferences/com.apple.dock.plist',''), add_path) # swap out the full home path for the ~
             else:

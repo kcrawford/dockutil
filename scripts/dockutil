@@ -303,7 +303,11 @@ def main():
                         # join and print relevant data into a string separated by tabs
                         print '\t'.join((item['tile-data']['file-label'], item['tile-data']['file-data']['_CFURLString'], section, plist_path))
                     except:
-                        pass
+                        try:
+                            # join and print relevant data into a string separated by tabs
+                            print '\t'.join((item['tile-data']['label'], item['tile-data']['url']['_CFURLString'], section, plist_path))
+                        except:
+                            pass
 
         elif find_label != None: # --find action
             # since we are only reading the plist, make a copy before converting it to be read
@@ -318,7 +322,12 @@ def main():
                             item_found = True
                             print find_label, "was found in", section, "at slot", item_offset+1, "in", plist_path
                     except:
-                        pass
+                        try:
+                            if pl[section][item_offset]['tile-data']['label'] == find_label:
+                                item_found = True
+                                print find_label, "was found in", section, "at slot", item_offset+1, "in", plist_path
+                        except:
+                            pass
             if not item_found:
                 print find_label, "was not found in", plist_path
                 if not all_homes:  # only exit non-zero if we aren't processing all homes, because for allhomes, exit status for find would be irrelevant
@@ -336,6 +345,9 @@ def main():
                 print 'move failed for', move_label, 'in', plist_path
 
         elif add_path != None:  # --add action
+            if add_path.startswith('file://'): # remove 'file://' from start of path, so its not treated as a url
+                add_path = re.sub('^file://', '', add_path)
+
             if add_path.startswith('~'): # we've got a relative path and relative paths need to be processed by using a path relative to this home directory
                 real_add_path = re.sub('^~', plist_path.replace('/Library/Preferences/com.apple.dock.plist',''), add_path) # swap out the full home path for the ~
             else:

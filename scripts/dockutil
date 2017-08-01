@@ -336,6 +336,8 @@ def main():
                     sys.exit(1)
 
         elif move_label != None: # --move action
+            # correct unicode names handling
+            move_label = move_label.decode('utf-8')
             pl = readPlist(plist_path)
             # check for a position option before processing
             if position is None and before_item is None and after_item is None:
@@ -542,6 +544,7 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
     #fix problems with unicode file names
     enc = (sys.stdin.encoding if sys.stdin.encoding else 'UTF-8')
     add_path = unicode(add_path, enc)
+    label_name = label_name.decode('utf-8')
 
     # set a dock label if one isn't provided
     if label_name == None:

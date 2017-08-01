@@ -310,6 +310,8 @@ def main():
                             pass
 
         elif find_label != None: # --find action
+            # correct unicode names handling
+            find_label = find_label.decode('utf-8')
             # since we are only reading the plist, make a copy before converting it to be read
             pl = readPlist(plist_path)
             # set found state

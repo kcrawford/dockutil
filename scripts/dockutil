@@ -544,7 +544,6 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
     #fix problems with unicode file names
     enc = (sys.stdin.encoding if sys.stdin.encoding else 'UTF-8')
     add_path = unicode(add_path, enc)
-    label_name = label_name.decode('utf-8')
 
     # set a dock label if one isn't provided
     if label_name == None:
@@ -555,6 +554,8 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
             base_name = re.sub('/$', '', add_path).split('/')[-1]
             label_name = re.sub('.app$', '', base_name)
 
+
+    label_name = label_name.decode('utf-8')
 
     # only add if item label isn't already there
 

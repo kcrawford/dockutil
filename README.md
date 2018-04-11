@@ -140,3 +140,11 @@ Version 1.1
 
 Requires plistlib
 
+
+**RELATED**
+
+- https://github.com/chilcote/outset/wiki/Dockutil
+- https://www.jamf.com/jamf-nation/third-party-products/203/dockutil
+- https://www.jamf.com/jamf-nation/discussions/18798/dock-items-add-and-remove
+- https://github.com/autopkg/jessepeterson-recipes/tree/master/dockutil
+- https://github.com/autopkg/grahamgilbert-recipes/blob/master/dockutil/dockutil.install.recipe

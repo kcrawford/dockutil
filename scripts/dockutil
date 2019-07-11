@@ -93,6 +93,8 @@ Examples:
 
   The following adds a spacer tile in the apps section after Mail
            %(progname)s --add '' --type spacer --section apps --after Mail
+           %(progname)s --add '' --type small-spacer --section apps --after Mail
+           %(progname)s --add '' --type flex-spacer --section apps --after Mail
 
   The following removes all spacer tiles
            %(progname)s --remove spacer-tiles
@@ -590,7 +592,7 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
 
     elif tile_type == 'url-tile':
         new_item = {'GUID': new_guid, 'tile-data': {'label': label_name, 'url': {'_CFURLString': add_path, '_CFURLStringType': 15}}, 'tile-type': tile_type}
-    elif tile_type == 'spacer-tile':
+    elif tile_type == 'spacer-tile' or tile_type == 'small-spacer-tile' or tile_type == 'flex-spacer-tile':
         new_item = {'GUID': new_guid, 'tile-data': {}, 'tile-type': tile_type}
     else:
         print 'unknown type:', tile_type
@@ -651,7 +653,7 @@ def removeItem(pl, item_name):
         verboseOutput('Removing all spacers')
         for section in ['persistent-apps', 'persistent-others']:
             for item in pl.get(section, []):
-                if item['tile-type'] == "spacer-tile":
+                if item['tile-type'] == "spacer-tile" or item['tile-type'] == "small-spacer-tile" or item['tile-type'] == "flex-spacer-tile":
                     pl[section].remove(item)
                     removal_succeeded = True
     for dock_item in pl['persistent-apps']:

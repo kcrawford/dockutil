@@ -26,7 +26,7 @@ import time
 
 # default verbose printing to off
 verbose = False
-version = '2.0.5'
+version = '2.0.6'
 
 def usage(e=None):
     """Displays usage information and error if one occurred"""
@@ -298,7 +298,7 @@ def main():
             pl = readPlist(plist_path)
             # print a tab separated line for each item in the plist
             # for each section
-            for section in ['persistent-apps', 'persistent-others']:
+            for section in ['persistent-apps', 'persistent-others', 'recent-apps']:
                 # for item in section
                 for item in pl.get(section, []):
                     try:
@@ -319,7 +319,7 @@ def main():
             # set found state
             item_found = False
             # loop through dock items looking for a match with provided find_label
-            for section in ['persistent-apps', 'persistent-others']:
+            for section in ['persistent-apps', 'persistent-others', 'recent-apps']:
                 for item_offset in range(len(pl[section])):
                     try:
                         if pl[section][item_offset]['tile-data']['file-label'] == find_label:
@@ -465,7 +465,7 @@ def readPlist(plist_path):
 
 def moveItem(pl, move_label=None, position=None, before_item=None, after_item=None):
     """locates an existing dock item and moves it to a new position"""
-    for section in ['persistent-apps', 'persistent-others']:
+    for section in ['persistent-apps', 'persistent-others', 'recent-apps']:
         item_to_move = None
         # loop over the items looking for the item label
         for item_offset in range(len(pl[section])):
@@ -648,10 +648,11 @@ def removeItem(pl, item_name):
         verboseOutput('Removing all items')
         pl['persistent-apps'] = []
         pl['persistent-others'] = []
+        pl['recent-apps'] = []
         return True
     if item_name == u'spacer-tiles':
         verboseOutput('Removing all spacers')
-        for section in ['persistent-apps', 'persistent-others']:
+        for section in ['persistent-apps', 'persistent-others', 'recent-apps']:
             for item in pl.get(section, []):
                 if item['tile-type'] == "spacer-tile" or item['tile-type'] == "small-spacer-tile" or item['tile-type'] == "flex-spacer-tile":
                     pl[section].remove(item)
@@ -667,6 +668,11 @@ def removeItem(pl, item_name):
                 verboseOutput('found', item_name)
                 pl['persistent-others'].remove(dock_item)
                 removal_succeeded = True
+    for dock_item in pl['recent-apps']:
+        if (dock_item['tile-data'].get('file-label') == item_name) or (dock_item['tile-data'].get('bundle-identifier') == item_name):
+            verboseOutput('found', item_name)
+            pl['recent-apps'].remove(dock_item)
+            removal_succeeded = True
         else:
             if dock_item['tile-data'].get('file-label') == item_name:
                 verboseOutput('found', item_name)

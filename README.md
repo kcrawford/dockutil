@@ -12,6 +12,12 @@ It is currently written in Python and makes use of plistlib module included in M
 
 [Apache 2](http://www.apache.org/licenses/LICENSE-2.0)
 
+**Installation**
+
+1. Install via [Homebrew](https://brew.sh) `brew install dockutil`
+2. Download .pkg file from GitHub releases
+3. Download source code from GitHub and run it
+
 **CHANGELOG**
 
 Version 2.0.5

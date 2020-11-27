@@ -26,7 +26,7 @@ import time
 
 # default verbose printing to off
 verbose = False
-version = '2.0.5'
+version = '2.0.6'
 
 managed_settings_bool = ['autohide', 'magnification', 'show-recents']
 managed_settings_int = ['tilesize', 'largesize']

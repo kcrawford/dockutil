@@ -471,7 +471,7 @@ def moveItem(pl, move_label=None, position=None, before_item=None, after_item=No
         for item_offset in range(len(pl[section])):
             if pl[section][item_offset]['tile-data']['file-label'] == move_label:
                 item_found = True
-                verboseOutput('found', move_label) 
+                verboseOutput('found', move_label)
                 # make a copy of the found dock entry
                 item_to_move = pl[section][item_offset]
                 found_offset = item_offset
@@ -487,7 +487,7 @@ def moveItem(pl, move_label=None, position=None, before_item=None, after_item=No
 
         # figure out where to re-insert the original dock item back into the plist
         if position != None:
-            if position in [ 'beginning', 'begin', 'first' ]:        
+            if position in [ 'beginning', 'begin', 'first' ]:
                 pl[section].insert(0, item_to_move)
                 return True
             elif position in [ 'end', 'last' ]:
@@ -584,8 +584,9 @@ def addItem(pl, add_path, replace_label=None, position=None, before_item=None, a
     if tile_type == 'file-tile':
         new_item = {'GUID': new_guid, 'tile-data': {'file-data': {'_CFURLString': add_path, '_CFURLStringType': 0},'file-label': label_name, 'file-type': 32}, 'tile-type': tile_type}
     elif tile_type == 'directory-tile':
-        if subprocess.Popen(['/usr/bin/sw_vers', '-productVersion'],
-                stdout=subprocess.PIPE).stdout.read().rstrip().split('.')[1] == '4': # gets the decimal after 10 in sw_vers; 10.4 does not use 10.5 options for stacks
+        version = subprocess.Popen(['/usr/bin/sw_vers', '-productVersion'],
+                                   stdout=subprocess.PIPE).stdout.read().rstrip().split('.')
+        if version[0] == '10' and version[1] == '4': # gets the decimal after 10 in sw_vers; 10.4 does not use 10.5 options for stacks
             new_item = {'GUID': new_guid, 'tile-data': {'directory': 1, 'file-data': {'_CFURLString': add_path, '_CFURLStringType': 0}, 'file-label': label_name, 'file-type': 2 }, 'tile-type': tile_type}
         else:
             new_item = {'GUID': new_guid, 'tile-data': {'arrangement': arrangement, 'directory': 1, 'displayas': displayas, 'file-data': {'_CFURLString': add_path, '_CFURLStringType': 0}, 'file-label': label_name, 'file-type': 2, 'showas': showas}, 'tile-type': tile_type}

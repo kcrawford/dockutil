@@ -1,6 +1,6 @@
 **INTRODUCTION**
 
-dockutil is a command line utility for managing Mac OS X dock items.
+dockutil is a command line utility for managing macOS dock items.
 It is currently written in Swift.
 - Compatible with macOS Big Sur & Monterey (use 2.x version for older
   OSes)

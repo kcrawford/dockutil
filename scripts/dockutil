@@ -26,7 +26,11 @@ import time
 
 # default verbose printing to off
 verbose = False
-version = '2.0.5'
+version = '2.0.6'
+
+managed_settings_bool = ['autohide', 'magnification', 'show-recents']
+managed_settings_int = ['tilesize', 'largesize']
+managed_settings_float = ['autohide-delay']
 
 def usage(e=None):
     """Displays usage information and error if one occurred"""
@@ -36,6 +40,7 @@ usage:     %(progname)s --add <path to item> | <url> [--label <label>] [ folder_
 usage:     %(progname)s --remove <dock item label> | <app bundle id> | all | spacer-tiles [--no-restart] [ plist_location_specification ]
 usage:     %(progname)s --move <dock item label>  position_options [ plist_location_specification ]
 usage:     %(progname)s --find <dock item label> [ plist_location_specification ]
+usage:     %(progname)s --setting <setting name> --value <setting value> [--no-restart] [ plist_location_specification ]
 usage:     %(progname)s --list [ plist_location_specification ]
 usage:     %(progname)s --version
 
@@ -127,7 +132,7 @@ def main():
         (optargs, args) = getopt.getopt(sys.argv[1:], 'hv', ["help", "version",
             "section=", "list", "find=", "add=", "move=", "replacing=",
             "remove=", "after=", "before=", "position=", "display=", "view=",
-            "sort=", "label=", "type=", "allhomes", "homeloc=", "no-restart", "hupdock="])
+            "sort=", "label=", "type=", "setting=", "value=", "allhomes", "homeloc=", "no-restart", "hupdock="])
     except getopt.GetoptError, e:  # if parsing of options fails, display usage and parse error
         usage(e)
 
@@ -143,6 +148,8 @@ def main():
     add_path = None
     plist_path = None
     list = False
+    setting = False
+    setting_value = None
     all_homes = False
     replace_label = None
     section = None
@@ -217,6 +224,13 @@ def main():
             section = 'persistent-'+arg
         elif opt == '--list':
             list = True
+        elif opt == '--setting':
+            if arg in managed_settings_bool or arg in managed_settings_int or arg in managed_settings_float:
+                setting = arg
+            else:
+                usage('unsupported --setting argument')
+        elif opt == '--value':
+            setting_value = arg
         elif opt == '--allhomes':
             all_homes = True
         elif opt == '--homeloc':
@@ -230,7 +244,7 @@ def main():
                 restart_dock = False
 
     # check for an action
-    if add_path == None and not remove_labels and move_label == None and find_label == None and list == False:
+    if add_path == None and not remove_labels and move_label == None and find_label == None and list == False and setting == False:
         usage('no action was specified')
 
 
@@ -390,6 +404,18 @@ def main():
             else:
                 print 'item', add_path, 'was not added to Dock'
                 if not all_homes:  # only exit non-zero if we aren't processing all homes, because for allhomes, exit status for add would be irrelevant
+                    sys.exit(1)
+
+        elif setting: # --setting action
+            pl = readPlist(plist_path)
+            # check for a value option before processing
+            if setting_value is None:
+                usage('editing a setting requires a new value to be provided')
+            if changeSetting(pl, setting, setting_value):
+                commitPlist(pl, plist_path, restart_dock)
+            else:
+                print 'setting', setting, 'was not modified'
+                if not all_homes: # only exit non-zero if we aren't processing all homes, because for allhomes, exit status for add would be irrelevant
                     sys.exit(1)
 
 # NOTE on use of defaults
@@ -674,6 +700,37 @@ def removeItem(pl, item_name):
                 pl['persistent-others'].remove(dock_item)
                 removal_succeeded = True
     return removal_succeeded
+
+def changeSetting(pl, setting, setting_value):
+    if not setting or not setting_value:
+        usage('you must specify a --setting and a --value')
+
+    verboseOutput(setting, setting_value)
+
+    if setting in managed_settings_bool:
+        # Any string will evaluate as true, so need to correct for 'false' values
+        if isinstance(setting_value, str) and setting_value.lower() == 'false':
+            setting_value = False
+        try: 
+            setting_value = bool(setting_value)
+        except ValueError:
+            usage('--value must be a Boolean for this setting')
+    elif setting in managed_settings_int:
+        try:
+            setting_value = int(setting_value)
+        except ValueError:
+            usage('--value must be an integer for this setting')
+        setting_value = 16 if setting_value < 16 else 128 if setting_value > 128 else setting_value
+    elif setting in managed_settings_float:
+        try:
+            setting_value = float(setting_value)
+        except ValueError:
+            usage('--value must be a number for this setting')
+        setting_value = 0 if setting_value < 0 else setting_value
+        
+    verboseOutput('changing setting to', setting_value)
+    pl[setting] = setting_value
+    return True
 
 def commitPlist(pl, plist_path, restart_dock):
     writePlist(pl, plist_path)

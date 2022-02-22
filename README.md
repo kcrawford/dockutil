@@ -1,8 +1,8 @@
 **INTRODUCTION**
 
-dockutil is a command line utility for managing Mac OS X dock items.
-It is currently written in Python and makes use of plistlib module included in Mac OS X.
-- Compatible with Mac OS X 10.9.x thru 10.15 (use 1.x version for older
+dockutil is a command line utility for managing macOS dock items.
+It is currently written in Swift.
+- Compatible with macOS Big Sur & Monterey (use 2.x version for older
   OSes)
 - Add, List, Move, Find, Remove Dock Items
 - Supports Applications, Folders, Stacks, URLs. 
@@ -13,6 +13,11 @@ It is currently written in Python and makes use of plistlib module included in M
 [Apache 2](http://www.apache.org/licenses/LICENSE-2.0)
 
 **CHANGELOG**
+
+Version 3.0.0
+- Rewrite in Swift for macOS 12.3 compatibility
+- Feature compatibility with previous version
+- Find, Add, Remove by bundle identifier, URL or path
 
 Version 2.0.5
 - 10.12 fix for Dock restart
@@ -138,5 +143,4 @@ Version 1.1
 
 **LIMITATIONS AND DEPENDENCIES**
 
-Requires plistlib
 

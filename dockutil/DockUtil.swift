@@ -271,7 +271,12 @@ struct Dockutil: ParsableCommand {
             plistPath = URL(fileURLWithPath: plistPath).absoluteURL.path
 
             if !FileManager.default.fileExists(atPath: plistPath) {
-                throw(ValidationError("\(plistPath) does not seem to be a home directory or a dock plist"))
+                if allhomes {
+                    gv > 0 ? print("Skipping:", plistPath, "does not seem to be a home directory or a dock plist"):nil
+                    continue
+                } else {
+                    throw(ValidationError("\(plistPath) does not seem to be a home directory or a dock plist"))
+                }
             }
             
             gv > 0 ? print(plistPath):nil

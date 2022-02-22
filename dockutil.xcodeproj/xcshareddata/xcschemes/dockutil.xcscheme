@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1140"
-   version = "1.3">
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
@@ -94,5 +94,23 @@
    <ArchiveAction
       buildConfiguration = "Release"
       revealArchiveInOrganizer = "YES">
+      <PostActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Run Script"
+               scriptText = "# Developer ID Installer cert name&#10;sign_cert=&quot;Developer ID Installer: Kyle Crawford (Z5J8CJBUWC)&quot;&#10;# profile name used with `notarytool --store-credentials`&#10;credential_profile=&quot;notarytool.dockutil.com&quot;&#10;&#10;# data from build settings&#10;pkg_name=&quot;$PRODUCT_NAME&quot;&#10;identifier=&quot;$PRODUCT_BUNDLE_IDENTIFIER&quot;&#10;version=&quot;$MARKETING_VERSION&quot;&#10;&#10;PKG_PATH=&quot;$SRCROOT/$pkg_name-$version.pkg&quot;&#10;NOTARY_LOG=&quot;$SRCROOT/notary.log&quot;&#10;&#10;echo &quot;Packaging and Notarizing &apos;$pkg_name&apos;, version: $version&quot; &gt; &quot;$NOTARY_LOG&quot;&#10;date +&quot;%F %T&quot; &gt;&gt; &quot;$NOTARY_LOG&quot;&#10;echo &gt;&gt; &quot;$NOTARY_LOG&quot;&#10;&#10;# usually use `xcodebuild -exportArchive` to get&#10;# the product out of the archive. However, this does not work&#10;# with a command line tool, so we are going direct&#10;PKG_ROOT=&quot;$ARCHIVE_PATH/Products/&quot;&#10;&#10;# create the pkg&#10;pkgbuild --root &quot;$PKG_ROOT&quot; \&#10;         --identifier &quot;$identifier&quot; \&#10;         --version &quot;$version&quot; \&#10;         --install-location &quot;/&quot; \&#10;         --sign &quot;$sign_cert&quot; \&#10;         &quot;$PKG_PATH&quot; &gt;&gt; &quot;$NOTARY_LOG&quot; 2&gt;&amp;1&#10;echo &gt;&gt; &quot;$NOTARY_LOG&quot;&#10;&#10;# notarize&#10;xcrun notarytool submit &quot;$PKG_PATH&quot; \&#10;                 --keychain-profile &quot;$credential_profile&quot; \&#10;                 --wait &gt;&gt; &quot;$NOTARY_LOG&quot; 2&gt;&amp;1&#10;echo &gt;&gt; &quot;$NOTARY_LOG&quot;&#10;&#10;# staple&#10;xcrun stapler staple &quot;$PKG_PATH&quot; &gt;&gt; &quot;$NOTARY_LOG&quot; 2&gt;&amp;1&#10;&#10;# reveal in Finder&#10;open -R &quot;$PKG_PATH&quot;&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "4AE244BF249C586900836787"
+                     BuildableName = "dockutil"
+                     BlueprintName = "dockutil"
+                     ReferencedContainer = "container:dockutil.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
    </ArchiveAction>
 </Scheme>

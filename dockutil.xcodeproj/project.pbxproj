@@ -31,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		4A0940A327BB88A800A1F9D7 /* DockUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockUtil.swift; sourceTree = "<group>"; };
+		4A0940A727C49DD000A1F9D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4AE244C0249C586900836787 /* dockutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dockutil; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AE244C3249C586900836787 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		4AE244D1249C5CF700836787 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -84,6 +85,7 @@
 				4A0940A327BB88A800A1F9D7 /* DockUtil.swift */,
 				4AE244D9249C5DC000836787 /* Dock.swift */,
 				4AE244DF249C637900836787 /* DockTile.swift */,
+				4A0940A727C49DD000A1F9D7 /* Info.plist */,
 			);
 			path = dockutil;
 			sourceTree = "<group>";
@@ -111,6 +113,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4A0940A627C47DBF00A1F9D7 /* PBXTargetDependency */,
 			);
 			name = dockutil;
 			packageProductDependencies = (
@@ -210,6 +213,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4A0940A627C47DBF00A1F9D7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 4A0940A527C47DBF00A1F9D7 /* ArgumentParser */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		4AE244C5249C586900836787 /* Debug */ = {
@@ -331,7 +341,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Z5J8CJBUWC;
 				ENABLE_HARDENED_RUNTIME = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				INFOPLIST_FILE = "$(SRCROOT)/dockutil/Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MARKETING_VERSION = "3.0.0-beta.2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -344,7 +356,10 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = Z5J8CJBUWC;
 				ENABLE_HARDENED_RUNTIME = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				INFOPLIST_FILE = "$(SRCROOT)/dockutil/Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MARKETING_VERSION = "3.0.0-beta.2";
+				PRODUCT_BUNDLE_IDENTIFIER = dockutil.cli.tool;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -431,6 +446,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4A0940A527C47DBF00A1F9D7 /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4AE244E2249C6D0800836787 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
 		4AE244E3249C6D0800836787 /* ArgumentParser */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4AE244E2249C6D0800836787 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;

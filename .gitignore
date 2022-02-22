@@ -1,0 +1,4 @@
+*.pkg
+.DS_Store
+*.log
+build

@@ -31,13 +31,21 @@ class Dock {
         return []
     }
     
+    func runningAsConsoleUser() -> Bool {
+        return ProcessInfo.processInfo.userName == consoleUser()
+    }
+    
     func isLoggedInUserDock() -> Bool {
-        let loggedInUserPlistPath = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Preferences/com.apple.dock.plist").path
+        guard let user = consoleUser() else { return false }
+        let loggedInUserPlistPath = URL(fileURLWithPath: NSHomeDirectoryForUser(user) ?? NSHomeDirectory()).appendingPathComponent("Library/Preferences/com.apple.dock.plist").path
+        gv > 0 ? print("Comparing", loggedInUserPlistPath, "to", self.path):nil
+
         return self.path == loggedInUserPlistPath
     }
     
     func read() {
-        if isLoggedInUserDock() {
+        if isLoggedInUserDock() && runningAsConsoleUser() {
+            gv > 0 ? print("Reading dock as a logged in user"):nil
             for section in sections {
                 if let value = CFPreferencesCopyAppValue(section.rawValue as CFString, dockApplicationID as CFString) as? [[String: AnyObject]] {
                     dockItems[section] = value.map({item in
@@ -67,7 +75,9 @@ class Dock {
     }
     
     func save(restart: Bool) {
-        if isLoggedInUserDock() {
+        if isLoggedInUserDock() && runningAsConsoleUser() {
+            gv > 0 ? print("Handling dock as a logged in user"):nil
+
             if restart {
                 monitorDockForRestart()
             }
@@ -108,6 +118,10 @@ class Dock {
             do {
                 try plistData.write(to: URL(fileURLWithPath: path))
                 try FileManager.default.setAttributes([.ownerAccountID: originalOwnerID], ofItemAtPath: self.path)
+                if restart && isLoggedInUserDock() {
+                    gv > 0 ? print("Restarting dock for console user"):nil
+                    kickstart()
+                }
             } catch {
                 print("Error saving plist", error)
             }
@@ -177,7 +191,12 @@ class Dock {
         
 
     }
-    
+
+    func consoleUser() -> String? {
+        let store = SCDynamicStoreCreate(nil, "dockutil" as CFString, nil, nil)
+        return SCDynamicStoreCopyConsoleUser(store, nil, nil) as String?
+    }
+
 
     func consoleUserUID() -> uid_t {
         let store = SCDynamicStoreCreate(nil, "dockutil" as CFString, nil, nil)
@@ -185,7 +204,7 @@ class Dock {
         SCDynamicStoreCopyConsoleUser(store, &uid, nil)
         return uid
     }
-    
+
     func kickstart() {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/bin/launchctl")

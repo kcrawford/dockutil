@@ -10,7 +10,7 @@ import Foundation
 import ArgumentParser
 import Darwin
 
-let VERSION = "3.0.0-beta.1"
+let VERSION = "3.0.0-beta.2"
 var gv = 0 // Global verbosity
 
 struct DockAdditionOptions {

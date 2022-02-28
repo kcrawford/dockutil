@@ -117,8 +117,62 @@ struct TileTypeArgument: ExpressibleByArgument {
 
 struct Dockutil: ParsableCommand {
     
+    static var configuration = CommandConfiguration(
+        abstract: "dockutil is a command line utility for managing macOS dock items",
+        discussion:
+"""
+  usage:     dockutil -h
+  usage:     dockutil --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [--no-restart] [ plist_location_specification ]
+  usage:     dockutil --remove <dock item label> | <app bundle id> | all | spacer-tiles [--no-restart] [ plist_location_specification ]
+  usage:     dockutil --move <dock item label>  position_options [ plist_location_specification ]
+  usage:     dockutil --find <dock item label> [ plist_location_specification ]
+  usage:     dockutil --list [ plist_location_specification ]
+  usage:     dockutil --version
+
+  Examples:
+    The following adds TextEdit.app to the end of the current user's dock:
+             dockutil --add /System/Applications/TextEdit.app
+
+    The following replaces Time Machine with TextEdit.app in the current user's dock:
+             dockutil --add /System/Applications/TextEdit.app --replacing 'Time Machine'
+
+    The following adds TextEdit.app after the item Time Machine in every user's dock on that machine:
+             dockutil --add /System/Applications/TextEdit.app --after 'Time Machine' --allhomes
+
+    The following adds ~/Downloads as a grid stack displayed as a folder for every user's dock on that machine:
+             dockutil --add '~/Downloads' --view grid --display folder --allhomes
+
+    The following adds a url dock item after the Downloads dock item for every user's dock on that machine:
+             dockutil --add vnc://miniserver.local --label 'Mini VNC' --after Downloads --allhomes
+
+    The following removes System Preferences from every user's dock on that machine:
+             dockutil --remove 'System Preferences' --allhomes
+
+    The following moves System Preferences to the second slot on every user's dock on that machine:
+             dockutil --move 'System Preferences' --position 2 --allhomes
+
+    The following finds any instance of iTunes in the specified home directory's dock:
+             dockutil --find iTunes /Users/jsmith
+
+    The following lists all dock items for all home directories at homeloc in the form: item<tab>path<tab><section>tab<plist>
+             dockutil --list --homeloc /Volumes/RAID/Homes --allhomes
+
+    The following adds Firefox after Safari in the Default User Template without restarting the Dock
+             dockutil --add /Applications/Firefox.app --after Safari --no-restart '/System/Library/User Template/English.lproj'
+
+    The following adds a spacer tile in the apps section after Mail
+             dockutil --add '' --type spacer --section apps --after Mail
+
+    The following removes all spacer tiles
+             dockutil --remove spacer-tiles
+
+  Notes:
+    When specifying a relative path like ~/Documents with the --allhomes option, ~/Documents must be quoted like '~/Documents' to get the item relative to each home
+""")
+    
     @Option(name: [.customShort("a"), .customLong("add")], help: ArgumentHelp(
     "Path or url of item to add",
+//    discussion: "usage:     dockutil --add <path to item> | <url> [--add ...] [--label <label>] [ folder_options ] [ position_options ] [--no-restart] [ plist_location_specification ]",
     valueName: "path to item | url"))
     var additions: [String] = [String]()
     //    usage:     dockutil --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [--no-restart] [ plist_location_specification ]
@@ -126,7 +180,7 @@ struct Dockutil: ParsableCommand {
     @Option(name: [.customShort("r"), .customLong("remove")],
             help: ArgumentHelp(
                 "Label or app bundle id of item to remove",
-                discussion:"usage:     dockutil --remove <dock item label> | <app bundle id> | all | spacer-tiles [--no-restart] [ plist_location_specification ]",
+//                discussion:"usage:     dockutil --remove <dock item label> | <app bundle id> | all | spacer-tiles [--remove ...] [--no-restart] [ plist_location_specification ]",
                 valueName: "label | app bundle id | path | url"
             ))
     var removals: [String] = [String]()
@@ -208,16 +262,25 @@ struct Dockutil: ParsableCommand {
     //    global_options:
     //      -v                                                            verbose output
     
-    @Flag(name: [.short, .customLong("verbose")], help: "Verbose output. Repeat to increase verbosity.")
+    @Flag(name: [.short, .customLong("verbose")], help: "Verbose output")
     var verbosity: Int
 
     
-    @Argument(help: "Dock plist location.  Default is current user's Dock")
-    var plistLocationSpecification: [String] = [URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Preferences/com.apple.dock.plist").path]
+    @Argument(help: ArgumentHelp(
+        "",
+        discussion: """
+<path(s) to specific dock plist(s)>                           /Users/username/Library/Preferences/com.apple.dock.plist
+<path(s) to home directory>                                   /Users/username
+--allhomes                                                    attempts to locate all home directories and perform the operation on each of them
+--homeloc                                                     overrides the default /Users location for home directories
+"""
+    ))
+    var plistLocationSpecifications: [String] = [URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Preferences/com.apple.dock.plist").path]
 
     mutating func run() throws {
         
         gv = verbosity
+        var errors = [String]()
         
         gv > 0 ? print("verbose mode \(gv)") : nil
         
@@ -229,17 +292,18 @@ struct Dockutil: ParsableCommand {
         
         if additions.count < 1 && removals.count < 1 && move == nil && find == nil && !list && !version {
             print(Dockutil.helpMessage()) // no action options specified
+            errors.append("No action specified")
         }
         
-        var plistPaths = plistLocationSpecification
+        var plistPaths = plistLocationSpecifications
 
         if allhomes {
             let homesURL = URL(fileURLWithPath: homeloc)
             let possibleHomes = (try? FileManager.default.contentsOfDirectory(at: homesURL, includingPropertiesForKeys: [.isDirectoryKey], options: [])) ?? []
-            print(possibleHomes)
+            gv > 0 ? print(possibleHomes) : nil
             for possibleHome in possibleHomes {
                 let prefsDirURL = possibleHome.appendingPathComponent("Library/Preferences")
-                print(prefsDirURL.path)
+                gv > 0 ? print(prefsDirURL.path): nil
                 if FileManager.default.fileExists(atPath: prefsDirURL.path) {
                     let path = prefsDirURL.appendingPathComponent("com.apple.dock.plist").path
                     plistPaths.append(path)
@@ -301,9 +365,7 @@ struct Dockutil: ParsableCommand {
                     dockWasModified = true
                 } else {
                     print("Move failed for \(move!)")
-                    if plistPaths.count == 1 {
-                        throw(ExitCode(1))
-                    }
+                    errors.append("Move failed for \(move!) in \(plistPath)")
                 }
             }
             
@@ -312,9 +374,7 @@ struct Dockutil: ParsableCommand {
                     if dock.removeItem(removal) {
                         dockWasModified = true
                     } else {
-                        if plistPaths.count == 1 {
-                            throw(ExitCode(1))
-                        }
+                        errors.append("Remove failed for \(removal) in \(plistPath)")
                     }
                 }
             }
@@ -388,17 +448,15 @@ struct Dockutil: ParsableCommand {
                         dockWasModified = true
                     } else {
                         print("item", addition, "was not added to Dock")
-                        if plistPaths.count == 1 { // only exit non-zero if acting on a single dock plist
-                            throw(ExitCode(1))
-                        }
+                        errors.append("Add failed for \(addition) in \(plistPath)")
                     }
 
                 }
             }
             
             if find != nil {
-                if !dock.find(find!) && plistPaths.count == 1 { // only exit non-zero if acting on a single dock plist
-                    throw(ExitCode(1))
+                if !dock.find(find!) {
+                    errors.append("Find failed for \(find!) in \(plistPath)")
                 }
             }
             
@@ -409,8 +467,15 @@ struct Dockutil: ParsableCommand {
             if dockWasModified {
                 dock.save(restart: restart)
             }
-            
+
         }
+
+        if errors.count > 0 {
+            let errorOutput = "\(errors.joined(separator: "\n"))\n"
+            FileHandle.standardError.write(errorOutput.data(using: .utf8)!)
+            throw(ExitCode(1))
+        }
+        
     }
 
 }

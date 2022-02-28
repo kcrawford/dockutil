@@ -10,7 +10,7 @@ import Foundation
 import SystemConfiguration
 
 class Dock {
-    let dockApplicationID = "com.apple.dock"
+    let dockDomain = "com.apple.dock"
     let sections : [DockSection] = [.persistentApps, .recentApps, .persistentOthers]
     
     var dockItems = [DockSection:[DockTile]]()
@@ -24,7 +24,7 @@ class Dock {
     }
     
     func readDockKeys()-> [String] {
-        if let keys = CFPreferencesCopyKeyList(dockApplicationID as CFString, kCFPreferencesCurrentUser, kCFPreferencesAnyHost) as? [String] {
+        if let keys = CFPreferencesCopyKeyList(dockDomain as CFString, kCFPreferencesCurrentUser, kCFPreferencesAnyHost) as? [String] {
             print(keys)
             return keys
         }
@@ -47,22 +47,30 @@ class Dock {
         if isLoggedInUserDock() && runningAsConsoleUser() {
             gv > 0 ? print("Reading dock as a logged in user"):nil
             for section in sections {
-                if let value = CFPreferencesCopyAppValue(section.rawValue as CFString, dockApplicationID as CFString) as? [[String: AnyObject]] {
+                if let value = CFPreferencesCopyAppValue(section.rawValue as CFString, dockDomain as CFString) as? [[String: AnyObject]] {
                     dockItems[section] = value.map({item in
                         DockTile(dict: item, section: section)
                     })
                 }
             }
         } else {
-            guard let plistData = FileManager.default.contents(atPath: self.path) else {
-                print("failed to read", self.path)
-                return
-            }
-            
-            guard let dict = try? PropertyListSerialization.propertyList(from: plistData, options: .mutableContainersAndLeaves, format: nil) as? [String:AnyObject] else {
+
+            // Read using defaults because we can't trust what is on disk and defaults uses cfprefs cache
+            let p = Process()
+            p.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
+            p.arguments = ["export", path, "-"]
+            let outPipe = Pipe()
+            p.standardOutput = outPipe
+            p.launch()
+            p.waitUntilExit()
+                        
+            let defaultsExportData = outPipe.fileHandleForReading.readDataToEndOfFile()
+                        
+            guard let dict = try? PropertyListSerialization.propertyList(from: defaultsExportData, options: .mutableContainersAndLeaves, format: nil) as? [String:AnyObject] else {
                 print("failed to deserialize plist", self.path)
                 return
             }
+            
             self.plist = dict
             for section in sections {
                 if let value = dict[section.rawValue] as? [[String: AnyObject]] {
@@ -77,27 +85,22 @@ class Dock {
     func save(restart: Bool) {
         if isLoggedInUserDock() && runningAsConsoleUser() {
             gv > 0 ? print("Handling dock as a logged in user"):nil
-
-            if restart {
-                monitorDockForRestart()
-            }
-        
+            
             for section in sections {
                 if let sectionItems = self.dockItems[section] {
                     let items = sectionItems.map({dockItem in
                         dockItem.dict
                     })
-                    CFPreferencesSetAppValue(section.rawValue as CFString, items as CFPropertyList?, dockApplicationID as CFString)
+                    CFPreferencesSetAppValue(section.rawValue as CFString, items as CFPropertyList?, dockDomain as CFString)
                 }
             }
-            CFPreferencesSynchronize(dockApplicationID as CFString, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
+            
+            CFPreferencesSynchronize(dockDomain as CFString, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
+            
             if restart {
-                DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(15)) {
-                    gv > 0 ? print("timed out waiting for dock plist file update"):nil
-                    self.kickstart()
-                }
-                RunLoop.current.run()
+                self.kickstart()
             }
+
         } else {
             for section in sections {
                 if let sectionItems = self.dockItems[section] {
@@ -107,24 +110,50 @@ class Dock {
                     plist[section.rawValue] = items as AnyObject?
                 }
             }
-            guard let originalOwnerID = try? FileManager.default.attributesOfItem(atPath: self.path)[.ownerAccountID] else {
+            guard let originalOwnerID = try? FileManager.default.attributesOfItem(atPath: self.path)[.ownerAccountID] as? Int else {
                 print("unable to get owner of plist", self.path)
                 return
             }
+                        
+//            IF WE WRITE DIRECTLY TO PLIST, CFPREFS IGNORES THE FILE ON DISK UNLESS WE KILL CFPREFS
+//            SO WE HAVE TO WRITE TO CFPREFS AS USER USING APIs or defaults
+//            FOR NOW WE USE defaults because we need to run as user.  Alternatively we could spawn dockutil as the user
+
             guard let plistData = try? PropertyListSerialization.data(fromPropertyList: plist, format: .binary, options: 0) else {
                 print("unable to serialize plist to data")
                 return
             }
-            do {
-                try plistData.write(to: URL(fileURLWithPath: path))
-                try FileManager.default.setAttributes([.ownerAccountID: originalOwnerID], ofItemAtPath: self.path)
-                if restart && isLoggedInUserDock() {
-                    gv > 0 ? print("Restarting dock for console user"):nil
-                    kickstart()
-                }
-            } catch {
-                print("Error saving plist", error)
+                        
+            if getpwuid(uid_t(originalOwnerID)) != nil { // make sure we have a valid uid we can run as
+                let p = Process()
+                p.executableURL = URL(fileURLWithPath: "/usr/bin/sudo")
+                p.arguments = ["-u", "#\(originalOwnerID)", "/usr/bin/defaults", "import", path, "-"]
+                let stdInPipe = Pipe()
+                p.standardInput = stdInPipe
+                p.launch()
+                stdInPipe.fileHandleForWriting.write(plistData)
+                stdInPipe.fileHandleForWriting.closeFile()
+                p.waitUntilExit()
+                print(p.terminationStatus)
+            } else {
+                let p = Process()
+                p.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
+                p.arguments = ["import", path, "-"]
+                let stdInPipe = Pipe()
+                p.standardInput = stdInPipe
+                p.launch()
+                stdInPipe.fileHandleForWriting.write(plistData)
+                stdInPipe.fileHandleForWriting.closeFile()
+                p.waitUntilExit()
+                print(p.terminationStatus)
+                try? FileManager.default.setAttributes([.ownerAccountID: originalOwnerID], ofItemAtPath: self.path) // chown to original owner
             }
+
+            if restart && isLoggedInUserDock() {
+                gv > 0 ? print("Restarting dock for console user"):nil
+                kickstart()
+            }
+
         }
         
     }
@@ -136,7 +165,6 @@ class Dock {
     func printList() {
         forEach() {tile in
             print("\(printOptional(tile.label))\t\(printOptional(tile.url))\t\(tile.section)\t\(path)\t\(printOptional(tile.bundleIdentifier))")
-
         }
     }
     
@@ -152,59 +180,25 @@ class Dock {
     
     func waitForAppleModifications(maxSeconds: Int = 5) {
         var secondsWaited = 0
-        while CFPreferencesCopyAppValue("mod-count" as CFString, dockApplicationID as CFString) as? Int ?? 0 < 2 && secondsWaited < maxSeconds {
+        while CFPreferencesCopyAppValue("mod-count" as CFString, dockDomain as CFString) as? Int ?? 0 < 2 && secondsWaited < maxSeconds {
             Thread.sleep(forTimeInterval: 1.0)
             secondsWaited += 1
         }
     }
-    
-    
-    func monitorDockForRestart() {
-        let url = URL(fileURLWithPath: "Library/Preferences/com.apple.dock.plist", relativeTo: URL(fileURLWithPath: NSHomeDirectory()))
-        gv > 0 ? print(url.absoluteString):nil
-        if let fileHandle = try? FileHandle(forReadingFrom: url) {
-            gv > 0 ? print("Got filehandle"):nil
-            DispatchQueue.global().async {
-                let source = DispatchSource.makeFileSystemObjectSource(
-                    fileDescriptor: fileHandle.fileDescriptor,
-                    eventMask: .all,
-                    queue: DispatchQueue.main
-                )
-                source.setEventHandler {
-                    let event = source.data
-                    gv > 0 ? print("Got fileSystemEvent \(event)"):nil
-                    gv > 0 ? print(source.dataStrings):nil
-                    source.cancel()
-                    DispatchQueue.global().asyncAfter(deadline: .now() + DispatchTimeInterval.milliseconds(250)) {
-                        self.kickstart()
-                    }
-                }
-                source.setCancelHandler {
-                    try? fileHandle.close()
-                }
-                
-                source.resume()
-            }
-        } else {
-            print("couldn't open fileHandle for Dock plist")
-        }
-        
-
-    }
 
     func consoleUser() -> String? {
-        let store = SCDynamicStoreCreate(nil, "dockutil" as CFString, nil, nil)
+        let store = SCDynamicStoreCreate(nil, "dockutil.consoleUser" as CFString, nil, nil)
         return SCDynamicStoreCopyConsoleUser(store, nil, nil) as String?
     }
 
 
     func consoleUserUID() -> uid_t {
-        let store = SCDynamicStoreCreate(nil, "dockutil" as CFString, nil, nil)
+        let store = SCDynamicStoreCreate(nil, "dockutil.consoleUserID" as CFString, nil, nil)
         var uid: uid_t = 0
         SCDynamicStoreCopyConsoleUser(store, &uid, nil)
         return uid
     }
-
+    
     func kickstart() {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/bin/launchctl")
@@ -219,8 +213,7 @@ class Dock {
             print(error)
         }
         p.waitUntilExit()
-        gv > 0 ? print(p.terminationStatus):nil
-        exit(0)
+        gv > 0 ? print(p.arguments, p.terminationStatus):nil
     }
 
     func add(_ _opts: DockAdditionOptions) -> Bool {
@@ -462,21 +455,4 @@ class Dock {
         return false
     }
 
-}
-
-
-extension DispatchSourceFileSystemObject {
-    var dataStrings: [String] {
-        var s = [String]()
-        if data.contains(.all)      { s.append("all") }
-        if data.contains(.attrib)   { s.append("attrib") }
-        if data.contains(.delete)   { s.append("delete") }
-        if data.contains(.extend)   { s.append("extend") }
-        if data.contains(.funlock)  { s.append("funlock") }
-        if data.contains(.link)     { s.append("link") }
-        if data.contains(.rename)   { s.append("rename") }
-        if data.contains(.revoke)   { s.append("revoke") }
-        if data.contains(.write)    { s.append("write") }
-        return s
-    }
 }

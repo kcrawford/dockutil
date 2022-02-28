@@ -31,7 +31,6 @@
 
 /* Begin PBXFileReference section */
 		4A0940A327BB88A800A1F9D7 /* DockUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockUtil.swift; sourceTree = "<group>"; };
-		4A0940A727C49DD000A1F9D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4AE244C0249C586900836787 /* dockutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dockutil; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AE244C3249C586900836787 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		4AE244D1249C5CF700836787 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -39,6 +38,7 @@
 		4AE244D5249C5CF700836787 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4AE244D9249C5DC000836787 /* Dock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dock.swift; sourceTree = "<group>"; };
 		4AE244DF249C637900836787 /* DockTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockTile.swift; sourceTree = "<group>"; };
+		94F771CE27C81B5C00393378 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,7 +85,7 @@
 				4A0940A327BB88A800A1F9D7 /* DockUtil.swift */,
 				4AE244D9249C5DC000836787 /* Dock.swift */,
 				4AE244DF249C637900836787 /* DockTile.swift */,
-				4A0940A727C49DD000A1F9D7 /* Info.plist */,
+				94F771CE27C81B5C00393378 /* Info.plist */,
 			);
 			path = dockutil;
 			sourceTree = "<group>";
@@ -339,11 +339,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEVELOPMENT_TEAM = Z5J8CJBUWC;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/dockutil/Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = "3.0.0-beta.2";
+				PRODUCT_BUNDLE_IDENTIFIER = dockutil.cli.tool;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -354,6 +356,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEVELOPMENT_TEAM = Z5J8CJBUWC;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/dockutil/Info.plist";

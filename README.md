@@ -138,6 +138,8 @@ Version 1.1
 
     Notes:
       When specifying a relative path like ~/Documents with the --allhomes option, ~/Documents must be quoted like '~/Documents' to get the item relative to each home
+      When specifying paths in macOS 11 Big Sur or higher note that the path to applications is /System/Applications so to add TextEdit.app :
+              dockutil --add /System/Applications/TextEdit.app
 
 
 

@@ -134,7 +134,7 @@ class Dock {
                 stdInPipe.fileHandleForWriting.write(plistData)
                 stdInPipe.fileHandleForWriting.closeFile()
                 p.waitUntilExit()
-                print(p.terminationStatus)
+                gv > 0 ? print(p.terminationStatus):nil
             } else {
                 let p = Process()
                 p.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
@@ -145,7 +145,7 @@ class Dock {
                 stdInPipe.fileHandleForWriting.write(plistData)
                 stdInPipe.fileHandleForWriting.closeFile()
                 p.waitUntilExit()
-                print(p.terminationStatus)
+                gv > 0 ? print(p.terminationStatus):nil
                 try? FileManager.default.setAttributes([.ownerAccountID: originalOwnerID], ofItemAtPath: self.path) // chown to original owner
             }
 

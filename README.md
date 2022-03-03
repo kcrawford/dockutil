@@ -18,6 +18,7 @@ Version 3.0.0
 - Rewrite in Swift for macOS 12.3 compatibility
 - Feature compatibility with previous version
 - Find, Add, Remove by bundle identifier, URL or path
+- Allow multiple actions in single run (add, remove can be combined and specified multiple times)
 
 Version 2.0.5
 - 10.12 fix for Dock restart

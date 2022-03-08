@@ -94,7 +94,11 @@ struct SectionArgument: ExpressibleByArgument {
     let value: DockSection
     
     init(argument: String) {
-        self.value = DockSection(rawValue: "persistent-" + argument)!
+        if argument.hasPrefix("recent") {
+            self.value = .recentApps
+        } else {
+            self.value = DockSection(rawValue: "persistent-" + argument)!
+        }
     }
 }
 
@@ -275,7 +279,7 @@ struct Dockutil: ParsableCommand {
 --homeloc                                                     overrides the default /Users location for home directories
 """
     ))
-    var plistLocationSpecifications: [String] = [URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Preferences/com.apple.dock.plist").path]
+    var plistLocationSpecifications: [String] = [URL(fileURLWithPath: NSHomeDirectoryForUser(ProcessInfo.processInfo.environment["SUDO_USER"] ?? NSUserName()) ?? NSHomeDirectory()).appendingPathComponent("Library/Preferences/com.apple.dock.plist").path]
 
     mutating func run() throws {
         

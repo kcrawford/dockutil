@@ -224,11 +224,10 @@ class Dock {
             if opts.tileType == .url {
                 opts.label = opts.path
             } else {
-               if (opts.path.hasSuffix(".app")) {
-                opts.label = URL(fileURLWithPath: opts.path).deletingPathExtension().lastPathComponent
-                  }
-               else {
-                  opts.label = URL(fileURLWithPath: opts.path).lastPathComponent
+                if opts.path.hasSuffix(".app") || opts.path.hasSuffix(".app/")  {
+                    opts.label = URL(fileURLWithPath: opts.path).deletingPathExtension().lastPathComponent
+                } else {
+                    opts.label = URL(fileURLWithPath: opts.path).lastPathComponent
                }
             }
         }
@@ -263,7 +262,7 @@ class Dock {
                         "_CFURLStringType": 0
                     ],
                     "file-label": opts.label,
-                    "file-type": 32
+                    "file-type": (opts.section == .recentApps) ? 1 : 41
                 ] as AnyObject,
                 "tile-type": opts.tileType.rawValue as AnyObject
             ]

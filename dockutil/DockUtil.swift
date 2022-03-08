@@ -302,6 +302,7 @@ struct Dockutil: ParsableCommand {
         var plistPaths = plistLocationSpecifications
 
         if allhomes {
+            plistPaths = [String]()
             let homesURL = URL(fileURLWithPath: homeloc)
             let possibleHomes = (try? FileManager.default.contentsOfDirectory(at: homesURL, includingPropertiesForKeys: [.isDirectoryKey], options: [])) ?? []
             gv > 0 ? print(possibleHomes) : nil

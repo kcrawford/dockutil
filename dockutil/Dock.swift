@@ -224,7 +224,12 @@ class Dock {
             if opts.tileType == .url {
                 opts.label = opts.path
             } else {
+               if (opts.path.hasSuffix(".app")) {
                 opts.label = URL(fileURLWithPath: opts.path).deletingPathExtension().lastPathComponent
+                  }
+               else {
+                  opts.label = URL(fileURLWithPath: opts.path).lastPathComponent
+               }
             }
         }
         

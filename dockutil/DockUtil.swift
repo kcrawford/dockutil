@@ -399,6 +399,15 @@ struct Dockutil: ParsableCommand {
                         let homeDir = plistPath.replacingOccurrences(of: "/Library/Preferences/com.apple.dock.plist", with: "")
                         addition = homeDir + addition.dropFirst(1)
                     }
+                    
+                    // Handle Applications that reside at /System/Applications
+                    if addition.hasPrefix("/Applications/") && !FileManager.default.fileExists(atPath: addition) {
+                        let possibleSystemAppPath = "/System" + addition
+                        if FileManager.default.fileExists(atPath: possibleSystemAppPath) {
+                            FileHandle.standardError.write("Notice: adding item at \(possibleSystemAppPath) rather than \(addition)\n".data(using: .utf8)!)
+                            addition = possibleSystemAppPath
+                        }
+                    }
                                         
                     var section = DockSection.persistentOthers // default value
                     

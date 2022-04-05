@@ -119,6 +119,7 @@ struct TileTypeArgument: ExpressibleByArgument {
     }
 }
 
+@main
 struct Dockutil: ParsableCommand {
     
     static var configuration = CommandConfiguration(

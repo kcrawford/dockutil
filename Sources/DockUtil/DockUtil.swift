@@ -10,7 +10,13 @@ import Foundation
 import ArgumentParser
 import Darwin
 
+#if SWIFT_PACKAGE
+// FIXME: SPM does not support custom Info.plist since it will conflict with the generated one used by Xcode
+// See more info here: https://forums.swift.org/t/add-info-plist-on-spm-bundle/40274/4
+let VERSION = "3.0.2"
+#else
 let VERSION = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
+#endif
 var gv = 0 // Global verbosity
 
 struct DockAdditionOptions {

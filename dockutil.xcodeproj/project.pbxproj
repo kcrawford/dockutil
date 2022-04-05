@@ -7,13 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4A0940A427BB88A800A1F9D7 /* DockUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0940A327BB88A800A1F9D7 /* DockUtil.swift */; };
-		4AE244D4249C5CF700836787 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE244D3249C5CF700836787 /* Tests.swift */; };
-		4AE244DA249C5DC000836787 /* Dock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE244D9249C5DC000836787 /* Dock.swift */; };
-		4AE244DB249C5DC000836787 /* Dock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE244D9249C5DC000836787 /* Dock.swift */; };
-		4AE244E0249C637900836787 /* DockTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE244DF249C637900836787 /* DockTile.swift */; };
-		4AE244E1249C637900836787 /* DockTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE244DF249C637900836787 /* DockTile.swift */; };
+		27D8D4B229DB0AEE0071860C /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC582BD27FCAEA1002B3633 /* Tests.swift */; };
 		4AE244E4249C6D0800836787 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE244E3249C6D0800836787 /* ArgumentParser */; };
+		AEC582B927FCAE94002B3633 /* DockUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC582B527FCAE94002B3633 /* DockUtil.swift */; };
+		AEC582BA27FCAE94002B3633 /* DockTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC582B627FCAE94002B3633 /* DockTile.swift */; };
+		AEC582BB27FCAE94002B3633 /* Dock.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC582B727FCAE94002B3633 /* Dock.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,14 +27,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4A0940A327BB88A800A1F9D7 /* DockUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockUtil.swift; sourceTree = "<group>"; };
 		4AE244C0249C586900836787 /* dockutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dockutil; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AE244D1249C5CF700836787 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		4AE244D3249C5CF700836787 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
-		4AE244D5249C5CF700836787 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4AE244D9249C5DC000836787 /* Dock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dock.swift; sourceTree = "<group>"; };
-		4AE244DF249C637900836787 /* DockTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockTile.swift; sourceTree = "<group>"; };
-		94F771CE27C81B5C00393378 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AEC582B527FCAE94002B3633 /* DockUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DockUtil.swift; sourceTree = "<group>"; };
+		AEC582B627FCAE94002B3633 /* DockTile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DockTile.swift; sourceTree = "<group>"; };
+		AEC582B727FCAE94002B3633 /* Dock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dock.swift; sourceTree = "<group>"; };
+		AEC582B827FCAE94002B3633 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AEC582BD27FCAEA1002B3633 /* Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
+		AEC582BE27FCAEA1002B3633 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,8 +59,8 @@
 		4AE244B7249C586900836787 = {
 			isa = PBXGroup;
 			children = (
-				4AE244C2249C586900836787 /* dockutil */,
-				4AE244D2249C5CF700836787 /* Tests */,
+				AEC582BC27FCAEA1002B3633 /* DockUtilTests */,
+				AEC582B427FCAE94002B3633 /* DockUtil */,
 				4AE244C1249C586900836787 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -76,24 +74,26 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4AE244C2249C586900836787 /* dockutil */ = {
+		AEC582B427FCAE94002B3633 /* DockUtil */ = {
 			isa = PBXGroup;
 			children = (
-				4A0940A327BB88A800A1F9D7 /* DockUtil.swift */,
-				4AE244D9249C5DC000836787 /* Dock.swift */,
-				4AE244DF249C637900836787 /* DockTile.swift */,
-				94F771CE27C81B5C00393378 /* Info.plist */,
+				AEC582B527FCAE94002B3633 /* DockUtil.swift */,
+				AEC582B627FCAE94002B3633 /* DockTile.swift */,
+				AEC582B727FCAE94002B3633 /* Dock.swift */,
+				AEC582B827FCAE94002B3633 /* Info.plist */,
 			);
-			path = dockutil;
+			name = DockUtil;
+			path = Sources/DockUtil;
 			sourceTree = "<group>";
 		};
-		4AE244D2249C5CF700836787 /* Tests */ = {
+		AEC582BC27FCAEA1002B3633 /* DockUtilTests */ = {
 			isa = PBXGroup;
 			children = (
-				4AE244D3249C5CF700836787 /* Tests.swift */,
-				4AE244D5249C5CF700836787 /* Info.plist */,
+				AEC582BD27FCAEA1002B3633 /* Tests.swift */,
+				AEC582BE27FCAEA1002B3633 /* Info.plist */,
 			);
-			path = Tests;
+			name = DockUtilTests;
+			path = Tests/DockUtilTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -192,9 +192,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A0940A427BB88A800A1F9D7 /* DockUtil.swift in Sources */,
-				4AE244E0249C637900836787 /* DockTile.swift in Sources */,
-				4AE244DA249C5DC000836787 /* Dock.swift in Sources */,
+				AEC582B927FCAE94002B3633 /* DockUtil.swift in Sources */,
+				AEC582BB27FCAE94002B3633 /* Dock.swift in Sources */,
+				AEC582BA27FCAE94002B3633 /* DockTile.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -202,9 +202,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AE244E1249C637900836787 /* DockTile.swift in Sources */,
-				4AE244DB249C5DC000836787 /* Dock.swift in Sources */,
-				4AE244D4249C5CF700836787 /* Tests.swift in Sources */,
+				27D8D4B229DB0AEE0071860C /* Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,11 +332,12 @@
 		4AE244C8249C586900836787 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
-				DEVELOPMENT_TEAM = Z5J8CJBUWC;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = "$(SRCROOT)/dockutil/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/dockutil/Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 3.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = dockutil.cli.tool;
@@ -354,8 +353,9 @@
 				CODE_SIGN_STYLE = Manual;
 				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEVELOPMENT_TEAM = Z5J8CJBUWC;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = "$(SRCROOT)/dockutil/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/dockutil/Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 3.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = dockutil.cli.tool;

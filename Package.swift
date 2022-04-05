@@ -14,15 +14,8 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "DockUtil",
-            dependencies: [
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
-            ],
-            path: "dockutil"
+            dependencies: [.product(name: "ArgumentParser", package: "swift-argument-parser")]
         ),
-        .testTarget(
-            name: "DockUtilTests",
-            dependencies: ["DockUtil"],
-            path: "Tests"
-        ),
+        .testTarget(name: "DockUtilTests", dependencies: ["DockUtil"]),
     ]
 )

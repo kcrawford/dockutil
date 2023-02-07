@@ -201,8 +201,10 @@ class Dock {
     func consoleUserUID() -> uid_t {
         let store = SCDynamicStoreCreate(nil, "dockutil" as CFString, nil, nil)
         var uid: uid_t = 0
-        SCDynamicStoreCopyConsoleUser(store, &uid, nil)
-        return uid
+        if (SCDynamicStoreCopyConsoleUser(store, &uid, nil) == nil || uid == 0) {
+            uid = getuid() // Try POSIX method as fallback
+            }
+       return uid
     }
 
     func kickstart() {
@@ -215,10 +217,18 @@ class Dock {
         ]
         do {
             try p.run()
+            p.waitUntilExit()
+            if (p.terminationStatus != 0) {
+                let p_fallback = Process()
+                p_fallback.executableURL = URL(fileURLWithPath: "/usr/bin/killall")
+                p_fallback.arguments = ["Dock"]
+                print("Force killall Dock")
+                try p_fallback.run()
+                p_fallback.waitUntilExit()
+            }
         } catch {
             print(error)
         }
-        p.waitUntilExit()
         gv > 0 ? print(p.terminationStatus):nil
         exit(0)
     }

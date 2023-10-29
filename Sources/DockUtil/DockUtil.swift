@@ -10,7 +10,7 @@ import Foundation
 import ArgumentParser
 import Darwin
 
-let VERSION = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
+let VERSION = "3.0.2"
 var gv = 0 // Global verbosity
 
 struct DockAdditionOptions {
@@ -119,6 +119,7 @@ struct TileTypeArgument: ExpressibleByArgument {
     }
 }
 
+@main
 struct Dockutil: ParsableCommand {
     
     static var configuration = CommandConfiguration(

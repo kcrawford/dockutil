@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import dockutil
+@testable import DockUtil
 
 class Tests: XCTestCase {
 

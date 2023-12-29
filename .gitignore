@@ -1,7 +1,10 @@
 *.pkg
+pkg
 .DS_Store
 *.log
+.build
 build
+artifacts
 
 .swiftpm
 .vscode

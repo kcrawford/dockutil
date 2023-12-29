@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIdentifier</key>
+	<string>dockutil.cli.tool</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>dockutil</string>
+	<key>CFBundleShortVersionString</key>
+	<string>3.0.3</string>
+	<key>CFBundleVersion</key>
+	<string>3.0.3</string>
+</dict>
+</plist>

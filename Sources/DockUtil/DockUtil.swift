@@ -10,7 +10,7 @@ import Foundation
 import ArgumentParser
 import Darwin
 
-let VERSION = "3.0.2"
+let VERSION = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 var gv = 0 // Global verbosity
 
 struct DockAdditionOptions {

@@ -111,6 +111,9 @@ class Dock {
 
         } else {
             gv > 0 ? print("Handling dock while running as \(ProcessInfo.processInfo.userName)"):nil
+            if ProcessInfo.processInfo.userName.lowercased() != "root" {
+                print("Warning: dockutil is not running as the user of this Dock nor root so dockutil may be unable to save the change or set the proper owner")
+            }
             for section in sections {
                 if let sectionItems = self.dockItems[section] {
                     let items = sectionItems.map({dockItem in

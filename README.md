@@ -14,6 +14,14 @@ It is currently written in Swift.
 
 **CHANGELOG**
 
+
+Version 3.1.1
+- Fix bug where dockutil would mistakenly call sudo to run as user
+- Ensure paths to apps in Cryptexes get added as normal apps rather than symlinks
+
+Version 3.1.0
+- Convert to Swift Package Manager package
+
 Version 3.0.0
 - Rewrite in Swift for macOS 12.3 compatibility
 - Feature compatibility with previous version

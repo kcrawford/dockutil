@@ -280,7 +280,7 @@ struct Dockutil: ParsableCommand {
 --homeloc                                                     overrides the default /Users location for home directories
 """
     ))
-    var plistLocationSpecifications: [String] = [URL(fileURLWithPath: NSHomeDirectoryForUser(ProcessInfo.processInfo.environment["SUDO_USER"] ?? NSUserName()) ?? NSHomeDirectory()).appendingPathComponent("Library/Preferences/com.apple.dock.plist").path]
+    var plistLocationSpecifications: [String] = [URL(fileURLWithPath: NSHomeDirectoryForUser(ProcessInfo.processInfo.environment["USER"] ?? NSUserName()) ?? NSHomeDirectory()).appendingPathComponent("Library/Preferences/com.apple.dock.plist").path]
 
     mutating func run() throws {
         

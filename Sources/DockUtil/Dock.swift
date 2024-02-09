@@ -6,7 +6,7 @@
 //  Copyright © 2022 Kyle Crawford. All rights reserved.
 //
 
-import Foundation
+import Cocoa
 import SystemConfiguration
 
 class Dock {
@@ -106,7 +106,7 @@ class Dock {
             CFPreferencesSynchronize(dockDomain as CFString, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
             
             if restart {
-                self.kickstart()
+                self.terminate()
             }
 
         } else {
@@ -170,7 +170,7 @@ class Dock {
 
             if restart && isLoggedInUserDock() {
                 gv > 0 ? print("Restarting dock for console user"):nil
-                kickstart()
+                terminate()
             }
 
         }
@@ -218,21 +218,22 @@ class Dock {
         return uid
     }
     
-    func kickstart() {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/bin/launchctl")
-        p.arguments = [
-            "kickstart",
-            "-k",
-            "gui/\(String(consoleUserUID()))/com.apple.Dock.agent"
-        ]
-        do {
-            try p.run()
-        } catch {
-            print(error)
+    func terminate() {
+        if let runningDock = NSWorkspace.shared.runningApplications.first(where: {$0.bundleIdentifier == "com.apple.dock"}) {
+            gv > 0 ? print("Terminating running Dock"):nil
+            runningDock.terminate()
+        } else {
+            let p = Process()
+            p.executableURL = URL(fileURLWithPath: "/usr/bin/killall")
+            p.arguments = ["Dock"]
+            do {
+                try p.run()
+            } catch {
+                print(error)
+            }
+            p.waitUntilExit()
+            gv > 0 ? print(p.arguments, p.terminationStatus):nil
         }
-        p.waitUntilExit()
-        gv > 0 ? print(p.arguments, p.terminationStatus):nil
     }
 
     func add(_ _opts: DockAdditionOptions) -> Bool {

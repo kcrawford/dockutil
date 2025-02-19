@@ -248,7 +248,10 @@ class Dock {
                     opts.label = URL(fileURLWithPath: opts.path).deletingPathExtension().lastPathComponent
                 } else {
                     opts.label = URL(fileURLWithPath: opts.path).lastPathComponent
-               }
+                }
+            }
+            if opts.tileType.rawValue == "spacer-tile" || opts.tileType.rawValue == "small-spacer-tile" || opts.tileType.rawValue == "flex-spacer-tile" {
+                opts.label = "spacer"+String(Int.random(in: 1..<99))
             }
         }
         
@@ -318,7 +321,9 @@ class Dock {
         case .spacer,.smallSpacer,.flexSpacer:
             itemDictionary = [
                 "GUID": newGUID as AnyObject,
-                "tile-data": [String:AnyObject]() as AnyObject,
+                "tile-data": [
+                    "label": opts.label
+                    ]  as AnyObject,
                 "tile-type": opts.tileType.rawValue as AnyObject
             ]
         }

@@ -1,0 +1,41 @@
+name: Build
+on: [push]
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+          - arch: arm64
+    runs-on: macos-13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build
+        run: ./build.sh ${{ matrix.arch }}
+      - name: Archive binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: dockutil-${{ matrix.arch }}
+          path: |
+            .build/dockutil-${{ matrix.arch }}.tar.gz
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-22.04
+    needs:
+      - build
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: .artifacts
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true
+          artifacts: |
+            .artifacts/*/*

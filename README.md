@@ -14,6 +14,11 @@ It is currently written in Swift.
 
 **CHANGELOG**
 
+Version 3.1.3
+- Fix: change dock restart method for 14.4 compatibility
+
+Version 3.1.2
+- Fix when running with sudo, dockutil should use the home directory of the actual user, not the user running sudo
 
 Version 3.1.1
 - Fix bug where dockutil would mistakenly call sudo to run as user

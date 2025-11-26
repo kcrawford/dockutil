@@ -1,4 +1,4 @@
-**INTRODUCTION**
+# INTRODUCTION
 
 dockutil is a command line utility for managing macOS dock items.
 It is currently written in Swift.
@@ -8,11 +8,11 @@ It is currently written in Swift.
 - Supports Applications, Folders, Stacks, URLs. 
 - Can act on a specific dock plist or every dock plist in a folder of home directories
 
-**LICENSE**
+# LICENSE
 
 [Apache 2](http://www.apache.org/licenses/LICENSE-2.0)
 
-**CHANGELOG**
+# CHANGELOG 
 
 Version 3.1.3
 - Fix: change dock restart method for 14.4 compatibility
@@ -85,7 +85,7 @@ Version 1.1
 - adds option --version to output version
 
 
-**USAGE**
+# USAGE
 
     usage:     dockutil -h
     usage:     dockutil --add <path to item> | <url> [--label <label>] [ folder_options ] [ position_options ] [--no-restart] [ plist_location_specification ]
@@ -157,6 +157,6 @@ Version 1.1
 
 
 
-**LIMITATIONS AND DEPENDENCIES**
+# LIMITATIONS AND DEPENDENCIES 
 
 

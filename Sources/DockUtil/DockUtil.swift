@@ -9,9 +9,10 @@
 import Foundation
 import ArgumentParser
 import Darwin
+import AppKit
 
 let VERSION = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-var gv = 0 // Global verbosity
+nonisolated(unsafe) var gv = 0 // Global verbosity
 
 struct DockAdditionOptions {
     var path: String
@@ -122,7 +123,7 @@ struct TileTypeArgument: ExpressibleByArgument {
 @main
 struct Dockutil: ParsableCommand {
     
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         abstract: "dockutil is a command line utility for managing macOS dock items",
         discussion:
 """

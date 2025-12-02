@@ -1,0 +1,24 @@
+#!/bin/zsh
+
+logged_in_uid=$(/usr/bin/stat -f %u /dev/console)
+
+echo "registering app with launch services to associate app bundle"
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister /usr/local/dockutil/Dockutil.app
+
+
+echo "installing launch agent"
+/bin/cp /usr/local/dockutil/Dockutil.app/Contents/Resources/dockutil.cli.tool.agent.plist /Library/LaunchAgents/
+
+
+if [ "${logged_in_uid}" != "0" ]; then
+    if /bin/launchctl asuser "${logged_in_uid}" /usr/bin/sudo -u "#${logged_in_uid}" /bin/launchctl list | /usr/bin/grep -q dockutil.cli.tool.agent; then
+      echo "kickstarting existing dockutil job"
+      /bin/launchctl asuser "${logged_in_uid}" /usr/bin/sudo -u "#${logged_in_uid}" /bin/launchctl kickstart -kp "gui/${logged_in_uid}/dockutil.cli.tool.agent"
+    else
+      echo "bootstrapping dockutil job"
+      /bin/launchctl asuser "${logged_in_uid}" /usr/bin/sudo -u "#${logged_in_uid}" /bin/launchctl bootstrap "gui/${logged_in_uid}" /Library/LaunchAgents/dockutil.cli.tool.agent.plist
+    fi
+fi
+
+
+exit 0

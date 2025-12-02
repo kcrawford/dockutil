@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+echo "registering app with launch services to associate app bundle"
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister /usr/local/dockutil/Dockutil.app
+
+
+exit 0

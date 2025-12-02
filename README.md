@@ -14,7 +14,7 @@ dockutil is a command line utility for managing macOS dock items.
 **CHANGELOG**
 
 Version 4.0.0
-- Experimental feature: agent mode. Adds apps to Dock as the are installed
+- Experimental feature: agent mode -- adds apps to Dock as they are installed
 
 Version 3.1.3
 - Fix: change dock restart method for 14.4 compatibility

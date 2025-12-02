@@ -133,6 +133,7 @@ struct Dockutil: ParsableCommand {
   usage:     dockutil --move <dock item label>  position_options [ plist_location_specification ]
   usage:     dockutil --find <dock item label> [ plist_location_specification ]
   usage:     dockutil --list [ plist_location_specification ]
+  usage:     dockutil --daemon
   usage:     dockutil --version
 
   Examples:
@@ -204,6 +205,9 @@ struct Dockutil: ParsableCommand {
     var list: Bool = false
     //    usage:     dockutil --list [ plist_location_specification ]
     
+    @Flag(name: .shortAndLong, help: "Run as daemon/agent watching for changes")
+    var daemon: Bool = false
+
     @Flag(name: [.customShort("V"), .long], inversion: .prefixedNo, help: "Display the version of dockutil")
     var version: Bool = false
     //    usage:     dockutil --version
@@ -296,6 +300,14 @@ struct Dockutil: ParsableCommand {
             throw(ExitCode(0))
         }
         
+        if daemon {
+            print("starting daemon")
+            Task { @MainActor in
+                let dockMonitor = DockMonitor()
+            }
+            RunLoop.current.run()
+        }
+
         if additions.count < 1 && removals.count < 1 && move == nil && find == nil && !list && !version {
             print(Dockutil.helpMessage()) // no action options specified
             errors.append("No action specified")

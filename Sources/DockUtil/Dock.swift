@@ -33,11 +33,11 @@ class Dock {
     
     
     func runningAsConsoleUser() -> Bool {
-        return ProcessInfo.processInfo.userName.lowercased() == consoleUser()?.lowercased()
+        return ProcessInfo.processInfo.userName.lowercased() == Dock.consoleUser()?.lowercased()
     }
     
     func isLoggedInUserDock() -> Bool {
-        guard let user = consoleUser() else { return false }
+        guard let user = Dock.consoleUser() else { return false }
         let loggedInUserPlistPath = URL(fileURLWithPath: NSHomeDirectoryForUser(user) ?? NSHomeDirectory()).appendingPathComponent("Library/Preferences/com.apple.dock.plist").path
         let caseInsensitivelyEquivalentDockPaths = self.path.lowercased() == loggedInUserPlistPath.lowercased()
 
@@ -204,18 +204,139 @@ class Dock {
             secondsWaited += 1
         }
     }
+    
+    func waitForRunningDock(maxSeconds: Int = 30) {
+        var secondsWaited = 0
+        while !isRunning() && secondsWaited < maxSeconds {
+            Thread.sleep(forTimeInterval: 1.0)
+            secondsWaited += 1
+        }
+    }
+    
+    func isRunning() -> Bool {
+        var running = false
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+        p.arguments = ["list"]
+        let outPipe = Pipe()
+        p.standardOutput = outPipe
+        p.waitUntilExit()
+        do {
+            try p.run()
+            guard let outData = try outPipe.fileHandleForReading.readToEnd() else {
+                print("failed to get output data from launchctl list")
+                return false
+            }
+            if let output = String(data: outData, encoding: .utf8) {
+                output.enumerateLines { line,stop in
+                    let fields = line.split(separator: "\t")
+                    if fields.count >= 3 {
+                        if fields[2] == "com.apple.Dock.agent" { // Label
+                            if Int(fields[0]) != nil { // PID
+                                running = true
+                            }
+                            stop = true
+                        }
+                    }
+                }
+            } else {
+                print("failed to convert data to String from launchctl list output")
+                return false
+            }
 
-    func consoleUser() -> String? {
+        } catch {
+            print("Error runing launchctl list to check if dock is running")
+            return false
+        }
+        return running
+    }
+
+    static func consoleUser() -> String? {
         let store = SCDynamicStoreCreate(nil, "dockutil.consoleUser" as CFString, nil, nil)
         return SCDynamicStoreCopyConsoleUser(store, nil, nil) as String?
     }
 
 
-    func consoleUserUID() -> uid_t {
+    static func consoleUserUID() -> uid_t {
         let store = SCDynamicStoreCreate(nil, "dockutil.consoleUserID" as CFString, nil, nil)
         var uid: uid_t = 0
         SCDynamicStoreCopyConsoleUser(store, &uid, nil)
         return uid
+    }
+    
+    func bootout() {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+        p.arguments = [
+            "bootout",
+            "gui/\(Dock.consoleUserUID())/com.apple.Dock.agent",
+        ]
+        do {
+            try p.run()
+        } catch {
+            print(error)
+        }
+        p.waitUntilExit()
+        gv > 0 ? print(p.arguments, p.terminationStatus):nil
+    }
+    
+    func bootstrap(thisRetry: Int = 0) {
+        // /bin/launchctl bootstrap gui/501 /System/Library/LaunchAgents/com.apple.Dock.plist
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+        p.standardError = Pipe()
+        p.arguments = [
+            "bootstrap",
+            "gui/\(Dock.consoleUserUID())",
+            "/System/Library/LaunchAgents/com.apple.Dock.plist",
+        ]
+        do {
+            try p.run()
+        } catch {
+            print(error)
+        }
+        p.waitUntilExit()
+        if p.terminationStatus == 0 {
+            if thisRetry > 0 {
+                print("bootstrap successful on retry:", thisRetry)
+            }
+        } else {
+            print("bootstrap retry:", thisRetry)
+            if thisRetry < 5 {
+                Thread.sleep(forTimeInterval: 0.25)
+                bootstrap(thisRetry: thisRetry + 1)
+            } else {
+                print("Retries exceeded. Failed to bootstrap")
+            }
+
+        }
+        gv > 0 ? print(p.arguments, p.terminationStatus):nil
+    }
+
+
+    
+    func restart() {
+        bootout()
+        bootstrap()
+        kickstart()
+    }
+    
+    func kickstart() {
+        // /bin/launchctl kickstart -k gui/501/com.apple.Dock.agent
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+        p.arguments = [
+            "kickstart",
+            "-k",
+            "gui/\(Dock.consoleUserUID())/com.apple.Dock.agent",
+        ]
+        do {
+            try p.run()
+        } catch {
+            print(error)
+        }
+        p.waitUntilExit()
+        gv > 0 ? print(p.arguments, p.terminationStatus):nil
     }
     
     func terminate() {
@@ -330,11 +451,17 @@ class Dock {
     }
     
     func index(within section: DockSection, item: String?)-> Int {
+        var itemAbsolutePath = ""
+        if (item ?? "").hasPrefix("/") {
+            itemAbsolutePath = URL(fileURLWithPath: item!).resolvingSymlinksInPath().path
+        }
         if let items = dockItems[section] {
             for (i, dockItem) in items.enumerated() {
                 gv > 0 ? print(dockItem.label):nil
-                let itemPath = URL(string: dockItem.url ?? "")?.path
-                if dockItem.label == item || dockItem.bundleIdentifier == item || itemPath == item || dockItem.url == item {
+                let dockItemURL = URL(string: dockItem.url ?? "")
+                let dockItemPath = dockItemURL?.path
+                let dockItemAbsolutePath = dockItemURL?.resolvingSymlinksInPath().path
+                if dockItem.label == item || dockItem.bundleIdentifier == item || dockItemPath == item || dockItem.url == item || dockItemPath == item?.resolvedPath() || dockItemPath?.resolvedPath() == item?.resolvedPath() || dockItemAbsolutePath == itemAbsolutePath {
                     return (i)
                 }
             }
@@ -479,4 +606,9 @@ class Dock {
         return false
     }
 
+    func persistentAppBundleIDs() -> [String] {
+        let appTiles = dockItems[DockSection.persistentApps] ?? [DockTile]()
+        return appTiles.compactMap { $0.bundleIdentifier }
+    }
+    
 }

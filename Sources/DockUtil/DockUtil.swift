@@ -403,33 +403,8 @@ struct Dockutil: ParsableCommand {
                         addition = homeDir + addition.dropFirst(1)
                     }
                     
-                    // Handle Applications that reside at /System/Applications
-                    if addition.hasPrefix("/Applications/") {
-                        if !FileManager.default.fileExists(atPath: addition) {
-                            let possibleSystemAppPath = "/System" + addition
-                            if FileManager.default.fileExists(atPath: possibleSystemAppPath) {
-                                FileHandle.standardError.write("Notice: adding item at \(possibleSystemAppPath) rather than \(addition)\n".data(using: .utf8)!)
-                                addition = possibleSystemAppPath
-                            }
-                        }
-                            
-                        // Handle Applications that are symlinks to Cryptexes like Safari so they don't show as symlinks in Dock
-                        if #available(macOS 13.0, *) {
-                            let appAdditionURL = URL(filePath: addition)
-                            let appIsSymlink = (try? appAdditionURL.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink) ?? false
-                            gv > 0 ? print("App is symlink: \(appIsSymlink)"):nil
-                            if appIsSymlink {
-                                let resolvedPath = appAdditionURL.resolvingSymlinksInPath().path(percentEncoded: false)
-                                gv > 0 ? print("Application symlink resolves to \(resolvedPath)"):nil
-                                if resolvedPath.hasPrefix("/System/Volumes/Preboot/Cryptexes/App/System/") {
-                                    gv > 0 ? print("Application is a symlink to Cryptexes. Set actual path to \(resolvedPath)"):nil
-                                    FileHandle.standardError.write("Notice: adding item at \(resolvedPath) rather than \(addition)\n".data(using: .utf8)!)
-                                    addition = resolvedPath
-                                }
-                            }
-                        }
-                    }
-                                        
+                    addition = addition.resolvedPath()
+                    
                     var section = DockSection.persistentOthers // default value
                     
                     if sectionArgument != nil {

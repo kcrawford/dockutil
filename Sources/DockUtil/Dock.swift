@@ -23,6 +23,11 @@ class Dock {
         read()
     }
     
+    convenience init() {
+        let dockPlistPath = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Preferences/com.apple.dock.plist").path
+        self.init(path: dockPlistPath)
+    }
+    
     func readDockKeys()-> [String] {
         if let keys = CFPreferencesCopyKeyList(dockDomain as CFString, kCFPreferencesCurrentUser, kCFPreferencesAnyHost) as? [String] {
             print(keys)

@@ -10,7 +10,7 @@
 	</array>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/usr/local/bin/dockutil</string>
+		<string>/usr/local/dockutil/DockUtil.app/Contents/MacOS/DockUtil</string>
 		<string>-d</string>
 	</array>
 	<key>RunAtLoad</key>

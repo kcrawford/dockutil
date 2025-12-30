@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "6C43B03E2EA099ED006389E4"
-               BuildableName = "Dockutil.app"
-               BlueprintName = "Dockutil"
-               ReferencedContainer = "container:Dockutil.xcodeproj">
+               BuildableName = "DockUtil.app"
+               BlueprintName = "DockUtil"
+               ReferencedContainer = "container:DockUtil.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6C43B03E2EA099ED006389E4"
-            BuildableName = "Dockutil.app"
-            BlueprintName = "Dockutil"
-            ReferencedContainer = "container:Dockutil.xcodeproj">
+            BuildableName = "DockUtil.app"
+            BlueprintName = "DockUtil"
+            ReferencedContainer = "container:DockUtil.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6C43B03E2EA099ED006389E4"
-            BuildableName = "Dockutil.app"
-            BlueprintName = "Dockutil"
-            ReferencedContainer = "container:Dockutil.xcodeproj">
+            BuildableName = "DockUtil.app"
+            BlueprintName = "DockUtil"
+            ReferencedContainer = "container:DockUtil.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -6,14 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		6CDDCA292EF895A1004A0E51 /* dockutil-lib in Frameworks */ = {isa = PBXBuildFile; productRef = 6CDDCA282EF895A1004A0E51 /* dockutil-lib */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
-		6C43B03F2EA099ED006389E4 /* Dockutil.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dockutil.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6C43B03F2EA099ED006389E4 /* DockUtil.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DockUtil.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		6C43B0412EA099ED006389E4 /* Dockutil */ = {
+		6C43B0412EA099ED006389E4 /* DockUtil */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Dockutil;
+			path = DockUtil;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6CDDCA292EF895A1004A0E51 /* dockutil-lib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,7 +37,7 @@
 		6C43B0362EA099ED006389E4 = {
 			isa = PBXGroup;
 			children = (
-				6C43B0412EA099ED006389E4 /* Dockutil */,
+				6C43B0412EA099ED006389E4 /* DockUtil */,
 				6C43B0402EA099ED006389E4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -40,7 +45,7 @@
 		6C43B0402EA099ED006389E4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6C43B03F2EA099ED006389E4 /* Dockutil.app */,
+				6C43B03F2EA099ED006389E4 /* DockUtil.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +53,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		6C43B03E2EA099ED006389E4 /* Dockutil */ = {
+		6C43B03E2EA099ED006389E4 /* DockUtil */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6C43B04A2EA099EF006389E4 /* Build configuration list for PBXNativeTarget "Dockutil" */;
+			buildConfigurationList = 6C43B04A2EA099EF006389E4 /* Build configuration list for PBXNativeTarget "DockUtil" */;
 			buildPhases = (
 				6C43B03B2EA099ED006389E4 /* Sources */,
 				6C43B03C2EA099ED006389E4 /* Frameworks */,
@@ -61,13 +66,14 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				6C43B0412EA099ED006389E4 /* Dockutil */,
+				6C43B0412EA099ED006389E4 /* DockUtil */,
 			);
-			name = Dockutil;
+			name = DockUtil;
 			packageProductDependencies = (
+				6CDDCA282EF895A1004A0E51 /* dockutil-lib */,
 			);
 			productName = Dockutil;
-			productReference = 6C43B03F2EA099ED006389E4 /* Dockutil.app */;
+			productReference = 6C43B03F2EA099ED006389E4 /* DockUtil.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -85,7 +91,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 6C43B03A2EA099ED006389E4 /* Build configuration list for PBXProject "Dockutil" */;
+			buildConfigurationList = 6C43B03A2EA099ED006389E4 /* Build configuration list for PBXProject "DockUtil" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -94,12 +100,15 @@
 			);
 			mainGroup = 6C43B0362EA099ED006389E4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6CDDCA272EF895A1004A0E51 /* XCLocalSwiftPackageReference "../../dockutil" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6C43B0402EA099ED006389E4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				6C43B03E2EA099ED006389E4 /* Dockutil */,
+				6C43B03E2EA099ED006389E4 /* DockUtil */,
 			);
 		};
 /* End PBXProject section */
@@ -256,12 +265,13 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = Z5J8CJBUWC;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -276,6 +286,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -292,12 +303,13 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = Z5J8CJBUWC;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -312,6 +324,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -320,7 +333,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		6C43B03A2EA099ED006389E4 /* Build configuration list for PBXProject "Dockutil" */ = {
+		6C43B03A2EA099ED006389E4 /* Build configuration list for PBXProject "DockUtil" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6C43B0482EA099EF006389E4 /* Debug */,
@@ -329,7 +342,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		6C43B04A2EA099EF006389E4 /* Build configuration list for PBXNativeTarget "Dockutil" */ = {
+		6C43B04A2EA099EF006389E4 /* Build configuration list for PBXNativeTarget "DockUtil" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6C43B04B2EA099EF006389E4 /* Debug */,
@@ -339,6 +352,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		6CDDCA272EF895A1004A0E51 /* XCLocalSwiftPackageReference "../../dockutil" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../dockutil;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6CDDCA282EF895A1004A0E51 /* dockutil-lib */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = "dockutil-lib";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6C43B0372EA099ED006389E4 /* Project object */;
 }

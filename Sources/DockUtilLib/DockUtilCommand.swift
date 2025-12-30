@@ -120,10 +120,11 @@ struct TileTypeArgument: ExpressibleByArgument {
     }
 }
 
-@main
-struct Dockutil: ParsableCommand {
+public struct DockUtilCommand: ParsableCommand {
     
-    static let configuration = CommandConfiguration(
+    public init() {}
+    
+    public static let configuration = CommandConfiguration(
         abstract: "dockutil is a command line utility for managing macOS dock items",
         discussion:
 """
@@ -287,7 +288,7 @@ struct Dockutil: ParsableCommand {
     ))
     var plistLocationSpecifications: [String] = [URL(fileURLWithPath: NSHomeDirectoryForUser(ProcessInfo.processInfo.environment["USER"] ?? NSUserName()) ?? NSHomeDirectory()).appendingPathComponent("Library/Preferences/com.apple.dock.plist").path]
 
-    mutating func run() throws {
+    mutating public func run() throws {
         
         gv = verbosity
         var errors = [String]()
@@ -309,7 +310,7 @@ struct Dockutil: ParsableCommand {
         }
 
         if additions.count < 1 && removals.count < 1 && move == nil && find == nil && !list && !version {
-            print(Dockutil.helpMessage()) // no action options specified
+            print(DockUtilCommand.helpMessage()) // no action options specified
             errors.append("No action specified")
         }
         

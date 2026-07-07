@@ -365,7 +365,10 @@ class Dock {
         case "spacer-tiles":
             for section in sections {
                 if dockItems[section] != nil {
-                    for (i, item) in dockItems[section]!.enumerated() {
+                    let items = dockItems[section]!
+                    // Iterate from the end so removing items doesn not affect indices we have not visited yet.
+                    for i in stride(from: items.count - 1, through: 0, by: -1) {
+                        let item = items[i]
                         if item.tileType != nil && item.tileType!.contains("spacer") {
                             dockItems[section]!.remove(at: i)
                         }

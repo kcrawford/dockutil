@@ -1,3 +1,5 @@
+dockutil is a command line utility for managing macOS dock items.
+
 **INTRODUCTION**
 
 dockutil is a command line utility for managing macOS dock items.
@@ -5,7 +7,7 @@ It is currently written in Swift.
 - Compatible with macOS Big Sur through Sonoma (use 2.x version for older
   OSes)
 - Add, List, Move, Find, Remove Dock Items
-- Supports Applications, Folders, Stacks, URLs. 
+- Supports Applications, Folders, Stacks, URLs.
 - Can act on a specific dock plist or every dock plist in a folder of home directories
 
 **LICENSE**
